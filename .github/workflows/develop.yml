@@ -49,6 +49,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
   deploy:
     runs-on: ubuntu-18.04
+    if: ${{ github.event_name == 'push' }}
     name: Deployment
     needs: [ test ]
     defaults:
