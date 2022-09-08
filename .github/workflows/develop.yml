@@ -5,6 +5,7 @@ on:
     branches: [ develop, main ]
   pull_request: 
     branches: [ develop, main ]
+    types: [ opened, synchronize ]
 
 env:
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
