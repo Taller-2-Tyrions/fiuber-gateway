@@ -16,7 +16,7 @@ origins = [
     "http://localhost",
     "http://localhost:8080",
     "http://localhost:3000",
-    "https://fiuber-gateway.herokuapp.com/",
+    "https://taller-2-tyrions.github.io",
 ]
 
 app.add_middleware(
