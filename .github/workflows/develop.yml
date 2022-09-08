@@ -30,7 +30,6 @@ jobs:
   test:
     runs-on: ubuntu-18.04
     name: Testing
-    needs: [ flake8 ]
     defaults:
       run:
         working-directory: .
@@ -51,7 +50,7 @@ jobs:
     runs-on: ubuntu-18.04
     if: ${{ github.event_name == 'push' }}
     name: Deployment
-    needs: [ test ]
+    needs: [ flake8, test ]
     defaults:
       run:
         working-directory: .
