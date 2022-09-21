@@ -6,3 +6,4 @@ pymongo
 http3
 pyrebase4 
 firebase-admin
+requests

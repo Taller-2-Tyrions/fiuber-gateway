@@ -1,22 +1,25 @@
 from fastapi import APIRouter
-from firebase_admin import auth
-from fastapi.responses import JSONResponse
+from ..schemas.users_schema import AuthBase
 from fastapi.exceptions import HTTPException
+import requests
+from dotenv import load_dotenv
+import os
+from fastapi.encoders import jsonable_encoder
+
+load_dotenv()
+USERS_URL = os.getenv("USERS_URL")
 
 router = APIRouter(
     prefix="/signup",
-    tags=['Users']
+    tags=['Sign Up']
 )
 
+
 @router.post('/')
-async def signup(email: str, password: str):
-   if email is None or password is None:
-       return HTTPException(detail={'message': 'Error! Missing Email or Password'}, status_code=400)
-   try:
-       user = auth.create_user(
-           email=email,
-           password=password
-       )
-       return JSONResponse(content={'message': f'Successfully created user {user.uid}'}, status_code=200)    
-   except:
-       return HTTPException(detail={'message': 'Error Creating User'}, status_code=400)
+async def signup(params: AuthBase):
+    req = requests.post(USERS_URL+"/signup", json=jsonable_encoder(params))
+
+    data = req.json()
+    if (req.status_code != 200):
+        raise HTTPException(detail=data["detail"], status_code=req.status_code)
+    return data
