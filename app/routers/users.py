@@ -4,7 +4,7 @@ from ..schemas.users_schema import UserBase, DriverBase
 from fastapi.encoders import jsonable_encoder
 import requests
 from fastapi import Cookie
-from typing import Union, Optional
+from typing import Union
 from dotenv import load_dotenv
 import os
 
@@ -17,8 +17,10 @@ router = APIRouter(
     tags=['Users']
 )
 
+
 @router.post('/')
-async def create_user(user: Union[UserBase, DriverBase], token: Union[str, None] = Cookie(None)):
+async def create_user(user: Union[UserBase, DriverBase],
+                      token: Union[str, None] = Cookie(None)):
     params = {
         "token": token
     }
