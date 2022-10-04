@@ -1,5 +1,12 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+from enum import Enum
+
+
+class Roles(Enum):
+    USER = "User"
+    DRIVER = "Driver"
+    ADMIN = "Admin"
 
 
 class CarBase(BaseModel):
@@ -12,7 +19,8 @@ class CarBase(BaseModel):
 class PersonBase(BaseModel):
     name: str
     last_name: str
-    roles: List[str]
+    roles: List[Roles]
+    profile_picture: Optional[str] = None
 
 
 class UserBase(PersonBase):
@@ -30,3 +38,7 @@ class AuthBase(BaseModel):
 
 class TokenBase(BaseModel):
     token: str
+
+
+class RecoveryEmailBase(BaseModel):
+    email: str
