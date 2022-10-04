@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 from fastapi.exceptions import HTTPException
-from ..schemas.users_schema import AuthBase
+from ..schemas.users_schema import AuthBase, RecoveryEmailBase
 from fastapi import Cookie
 from typing import Union
 from fastapi.encoders import jsonable_encoder
@@ -18,10 +18,10 @@ router = APIRouter(
 )
 
 
-@router.get('/password-recovery', status_code=status.HTTP_200_OK)
-async def send_recover_email(email: str):
-    req = requests.get(USERS_URL+"/password-recovery",
-                       json=jsonable_encoder(email))
+@router.post('/password-recovery', status_code=status.HTTP_200_OK)
+async def send_recover_email(email: RecoveryEmailBase):
+    req = requests.post(USERS_URL+"/login/password-recovery",
+                        json=jsonable_encoder(email))
     data = req.json()
     if (req.status_code != status.HTTP_200_OK):
         raise HTTPException(detail=data["detail"], status_code=req.status_code)
