@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 from fastapi.exceptions import HTTPException
 from ..schemas.users_schema import AuthBase
 from fastapi import Cookie
@@ -16,6 +16,15 @@ router = APIRouter(
     prefix="/login",
     tags=['Login']
 )
+
+
+@router.get('/password-recovery', status_code=status.HTTP_200_OK)
+async def send_recover_email(email: str):
+    req = requests.get(USERS_URL+"/password-recovery",
+                       json=jsonable_encoder(email))
+    data = req.json()
+    if (req.status_code != status.HTTP_200_OK):
+        raise HTTPException(detail=data["detail"], status_code=req.status_code)
 
 
 @router.post('/')
