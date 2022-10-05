@@ -1,3 +1,4 @@
+from tarfile import PAX_NUMBER_FIELDS
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
 from ..schemas.users_schema import UserBase, DriverBase
@@ -70,8 +71,7 @@ async def delete_user(id_user: str, token: Optional[str] = Cookie(None)):
 
 
 @router.get('/{id_user}')
-async def find_user(id_user: str, token: str):
-    # TODO: ADD COOKIE -> token: Optional[str] = Cookie(None)):
+async def find_user(id_user: str, token: Optional[str] = Cookie(None)):
     params = {
         "token": token
     }
@@ -87,6 +87,32 @@ async def find_user(id_user: str, token: str):
         req = requests.get(USERS_URL+"/"+id_user+"/profile/picture")
         if is_status_correct(req.status_code):
             data["profile_picture"] = req.json().get("img")
+    else:
+        raise HTTPException(detail=req.json()["detail"],
+                            status_code=req.status_code)
+
+
+@router.put('/{id_user}')
+async def modify_user(id_user: str, user: Union[UserBase, DriverBase],
+                      token: Optional[str] = Cookie(None)):
+    params = {
+        "token": token
+    }
+    req = requests.post(USERS_URL+"/validate", json=params)
+    if (is_status_correct(req.status_code)):
+        caller_id = req.json()["uid"]
+        profile_picture = user["profile_picture"]
+        delattr(user, "profile_picture")
+        req = requests.put(USERS_URL + "/users?user_id="
+                           + id_user + "&user_caller=" + caller_id, json=user)
+        if (not is_status_correct(req.status_code)):
+            data = req.json()
+            raise HTTPException(detail=data["detail"],
+                                status_code=req.status_code)
+        if profile_picture:
+            img = {"img": profile_picture}
+            req = requests.post(USERS_URL+"/"+id_user+"/profile/picture",
+                                json=img)
     else:
         raise HTTPException(detail=req.json()["detail"],
                             status_code=req.status_code)
