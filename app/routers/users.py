@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
-from ..schemas.users_schema import TokenBase, UserBase, DriverBase
+from ..schemas.users_schema import UserBase, DriverBase
+from ..schemas.users_schema import ProfilePictureBase, TokenBase
 from fastapi.encoders import jsonable_encoder
 import requests
 from typing import Union
@@ -30,16 +31,24 @@ async def create_user(user: Union[UserBase, DriverBase],
         id = req.json()["uid"]
         user["id"] = id
         user["is_blocked"] = False
-        profile_picture = user["profile_picture"]
-        delattr(user, "profile_picture")
         req = requests.post(USERS_URL+"/users", json=user)
         if (not is_status_correct(req.status_code)):
             data = req.json()
             raise HTTPException(detail=data["detail"],
                                 status_code=req.status_code)
-        if profile_picture:
-            img = {"img": profile_picture}
-            req = requests.post(USERS_URL+"/"+id+"/profile/picture", json=img)
+    else:
+        raise HTTPException(detail=req.json()["detail"],
+                            status_code=req.status_code)
+
+
+@router.post('/profile/picture')
+async def post_picture(user: ProfilePictureBase,
+                       token: TokenBase):
+    req = requests.post(USERS_URL+"/validate", json=jsonable_encoder(token))
+    if (is_status_correct(req.status_code)):
+        id = req.json()["uid"]
+        req = requests.post(USERS_URL+"/"+id+"/profile/picture",
+                            json=jsonable_encoder(user))
 
     else:
         raise HTTPException(detail=req.json()["detail"],
