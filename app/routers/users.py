@@ -1,10 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Cookie
 from fastapi.exceptions import HTTPException
 from ..schemas.users_schema import UserBase, DriverBase
 from ..schemas.users_schema import ProfilePictureBase, TokenBase
 from fastapi.encoders import jsonable_encoder
 import requests
-from typing import Union
+from typing import Optional, Union
 from dotenv import load_dotenv
 import os
 
@@ -72,8 +72,11 @@ async def delete_user(id_user: str, token: TokenBase):
 
 
 @router.get('/{id_user}')
-async def find_user(id_user: str, token: TokenBase):
-    req = requests.post(USERS_URL+"/validate", json=jsonable_encoder(token))
+async def find_user(id_user: str, token: Optional[str] = Cookie(None)):
+    params = {
+        "token": token
+    }
+    req = requests.post(USERS_URL+"/validate", json=params)
     if (is_status_correct(req.status_code)):
         caller_id = req.json()["uid"]
         req = requests.get(USERS_URL + "/users/" +
