@@ -1,7 +1,7 @@
 from tarfile import PAX_NUMBER_FIELDS
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
-from ..schemas.users_schema import UserBase, DriverBase
+from ..schemas.users_schema import TokenBase, UserBase, DriverBase
 from fastapi.encoders import jsonable_encoder
 import requests
 from fastapi import Cookie
@@ -25,11 +25,8 @@ def is_status_correct(status_code):
 
 @router.post('/')
 async def create_user(user: Union[UserBase, DriverBase],
-                      token: Optional[str] = Cookie(None)):
-    params = {
-        "token": token
-    }
-    req = requests.post(USERS_URL+"/validate", json=params)
+                      token: TokenBase):
+    req = requests.post(USERS_URL+"/validate", json=jsonable_encoder(token))
     if (is_status_correct(req.status_code)):
         user = jsonable_encoder(user)
         id = req.json()["uid"]
@@ -52,11 +49,8 @@ async def create_user(user: Union[UserBase, DriverBase],
 
 
 @router.delete('/{id_user}')
-async def delete_user(id_user: str, token: Optional[str] = Cookie(None)):
-    params = {
-        "token": token
-    }
-    req = requests.post(USERS_URL+"/validate", json=params)
+async def delete_user(id_user: str, token: TokenBase):
+    req = requests.post(USERS_URL+"/validate", json=jsonable_encoder(token))
     if (is_status_correct(req.status_code)):
         caller_id = req.json()["uid"]
         req = requests.delete(USERS_URL + "/users/" +
@@ -71,11 +65,8 @@ async def delete_user(id_user: str, token: Optional[str] = Cookie(None)):
 
 
 @router.get('/{id_user}')
-async def find_user(id_user: str, token: Optional[str] = Cookie(None)):
-    params = {
-        "token": token
-    }
-    req = requests.post(USERS_URL+"/validate", json=params)
+async def find_user(id_user: str, token: TokenBase):
+    req = requests.post(USERS_URL+"/validate", json=jsonable_encoder(token))
     if (is_status_correct(req.status_code)):
         caller_id = req.json()["uid"]
         req = requests.get(USERS_URL + "/users/" +
@@ -94,11 +85,8 @@ async def find_user(id_user: str, token: Optional[str] = Cookie(None)):
 
 @router.put('/{id_user}')
 async def modify_user(id_user: str, user: Union[UserBase, DriverBase],
-                      token: Optional[str] = Cookie(None)):
-    params = {
-        "token": token
-    }
-    req = requests.post(USERS_URL+"/validate", json=params)
+                      token: TokenBase):
+    req = requests.post(USERS_URL+"/validate", json=jsonable_encoder(token))
     if (is_status_correct(req.status_code)):
         caller_id = req.json()["uid"]
         profile_picture = user["profile_picture"]
