@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 from enum import Enum
 
 
@@ -16,11 +16,14 @@ class CarBase(BaseModel):
     capacity: int
 
 
+class ProfilePictureBase(BaseModel):
+    img: str
+
+
 class PersonBase(BaseModel):
     name: str
     last_name: str
     roles: List[Roles]
-    profile_picture: Optional[str] = None
 
 
 class UserBase(PersonBase):
