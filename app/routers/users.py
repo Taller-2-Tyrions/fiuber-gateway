@@ -1,11 +1,9 @@
-from tarfile import PAX_NUMBER_FIELDS
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
 from ..schemas.users_schema import TokenBase, UserBase, DriverBase
 from fastapi.encoders import jsonable_encoder
 import requests
-from fastapi import Cookie
-from typing import Optional, Union
+from typing import Union
 from dotenv import load_dotenv
 import os
 
