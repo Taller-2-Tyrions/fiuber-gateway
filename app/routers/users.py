@@ -88,6 +88,7 @@ async def find_user(id_user: str, token: Optional[str] = Cookie(None)):
         req = requests.get(USERS_URL+"/"+id_user+"/profile/picture")
         if is_status_correct(req.status_code):
             data["profile_picture"] = req.json().get("img")
+        return data
     else:
         raise HTTPException(detail=req.json()["detail"],
                             status_code=req.status_code)
