@@ -29,7 +29,7 @@ class VoyageStatus(Enum):
     FINISHED = "FINISHED"  # Viaje Confirmado Ambos
 
 
-class DriverBase(BaseModel):
+class DriverBaseVoyage(BaseModel):
     status: DriverStatus
     location: Point
 
