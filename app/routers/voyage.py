@@ -36,10 +36,14 @@ async def init_voyage(voyage: SearchVoyageBase, token: TokenBase):
     #             'is_blocked': resp["is_blocked"],
     #             'roles': resp["roles"]
     #         }, status_code=400)
-    voyage = jsonable_encoder(voyage)
-    voyage["id"] = uid
+    voyage_body = jsonable_encoder(voyage)
+    
+    voyage_body["passenger"]["id"] = uid
+    
+    print("uid: "+uid+",voyage_body: "+str(voyage_body))
 
-    req = requests.post(VOYAGE_URL+"/voyage/user", json=voyage)
+    req = requests.post(VOYAGE_URL+"/voyage/user", json=voyage_body)
+    print(req)
     if (not is_status_correct(req.status_code)):
         data = req.json()
         raise HTTPException(detail=data["detail"],
