@@ -29,7 +29,7 @@ async def init_voyage(voyage: SearchVoyageBase, token: TokenBase):
     uid = validate_request_and_get_uid(token)
 
     voyage_body = jsonable_encoder(voyage)
-    
+
     voyage_body["passenger"]["id"] = uid
 
     resp = requests.post(VOYAGE_URL+"/voyage/user", json=voyage_body)
