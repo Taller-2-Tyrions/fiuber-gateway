@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import http3
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import login, signup, users
+from .routers import login, signup, users, voyage
 
 app = FastAPI()
 client = http3.AsyncClient()
@@ -31,6 +31,7 @@ app.add_middleware(
 app.include_router(login.router)
 app.include_router(signup.router)
 app.include_router(users.router)
+app.include_router(voyage.router)
 
 
 @app.get("/")
