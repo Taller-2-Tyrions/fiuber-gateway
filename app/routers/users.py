@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Cookie
 from fastapi.exceptions import HTTPException
 
-from app.services.validation_services import validate_req_user_and_get_uid
+from app.services.validation_services import validate_req_passenger_and_get_uid
 from app.services.validation_services import validate_token
 from app.services.validation_services import validate_req_driver_and_get_uid
-from ..schemas.users_schema import Roles, UserBase, DriverBase
+from ..schemas.users_schema import Roles, PassengerBase, DriverBase
 from ..schemas.users_schema import ProfilePictureBase
 from fastapi.encoders import jsonable_encoder
 import requests
@@ -28,7 +28,7 @@ def is_status_correct(status_code):
 
 
 @router.post('/')
-async def create_user(user: Union[UserBase, DriverBase],
+async def create_user(user: Union[PassengerBase, DriverBase],
                       token: Optional[str] = Cookie(None)):
     id = validate_token(token)
     user = jsonable_encoder(user)
@@ -39,7 +39,7 @@ async def create_user(user: Union[UserBase, DriverBase],
         data = req.json()
         raise HTTPException(detail=data["detail"],
                             status_code=req.status_code)
-    if (Roles.USER.value in user.roles):
+    if (Roles.PASSENGER.value in user.roles):
         resp = requests.post(VOYAGE_URL+"/voyage/passenger/signup"+id)
         data = resp.json()
         if (not is_status_correct(resp.status_code)):
@@ -99,12 +99,12 @@ def request_modifications(id_user, user, caller_id):
 
 
 @router.put('/passenger/{id_user}')
-async def modify_passenger(id_user: str, user: UserBase,
+async def modify_passenger(id_user: str, user: PassengerBase,
                            token: Optional[str] = Cookie(None)):
     """
     Modify a Passenger
     """
-    caller_id = validate_req_user_and_get_uid(token)
+    caller_id = validate_req_passenger_and_get_uid(token)
     request_modifications(id_user, user, caller_id)
 
 
@@ -139,7 +139,7 @@ async def add_passenger_role(id_user: str, user: DriverBase,
     """
     Add a passenger role to an user
     """
-    caller_id = validate_req_user_and_get_uid(token)
+    caller_id = validate_req_passenger_and_get_uid(token)
     request_modifications(id_user, user, caller_id)
     resp = requests.post(VOYAGE_URL+"/voyage/passenger/signup"+id)
     data = resp.json()
