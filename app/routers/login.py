@@ -1,6 +1,7 @@
-from fastapi import APIRouter, status
+from typing import Optional
+from fastapi import APIRouter, status, Cookie
 from fastapi.exceptions import HTTPException
-from ..schemas.users_schema import AuthBase, RecoveryEmailBase, TokenBase
+from ..schemas.users_schema import AuthBase, RecoveryEmailBase
 from fastapi.encoders import jsonable_encoder
 import requests
 from dotenv import load_dotenv
@@ -36,9 +37,12 @@ async def login(params: AuthBase):
 
 
 @router.post('/google')
-async def login_google(token: TokenBase):
+async def login_google(token: Optional[str] = Cookie(None)):
+    params = {
+        "token": token
+    }
     req = requests.post(USERS_URL+"/login/google",
-                        json=jsonable_encoder(token))
+                        json=params)
 
     data = req.json()
     if (req.status_code != 200):

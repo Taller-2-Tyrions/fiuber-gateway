@@ -39,9 +39,5 @@ class AuthBase(BaseModel):
     password: str
 
 
-class TokenBase(BaseModel):
-    token: str
-
-
 class RecoveryEmailBase(BaseModel):
     email: str

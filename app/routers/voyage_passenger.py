@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from typing import Optional
+from fastapi import APIRouter, Cookie
 from fastapi.exceptions import HTTPException
 from dotenv import load_dotenv
 import os
-from ..schemas.users_schema import TokenBase
 from app.schemas.voyage_schema import SearchVoyageBase
 import requests
 from fastapi.encoders import jsonable_encoder
@@ -24,7 +24,7 @@ def is_status_correct(status_code):
 
 
 @router.post('/vip/subscription')
-def passenger_subscribes_to_vip(token: TokenBase):
+def passenger_subscribes_to_vip(token: Optional[str] = Cookie(None)):
     """
     A Passenger subscribes to VIP Package.
     """
@@ -39,7 +39,7 @@ def passenger_subscribes_to_vip(token: TokenBase):
 
 
 @router.post('/vip/unsubscription')
-def passenger_unsubscribes_to_vip(token: TokenBase):
+def passenger_unsubscribes_to_vip(token: Optional[str] = Cookie(None)):
     """
     A Passenger unsubscribes to VIP Package.
     """
@@ -54,7 +54,8 @@ def passenger_unsubscribes_to_vip(token: TokenBase):
 
 
 @router.post('/search')
-async def start_searching(voyage: SearchVoyageBase, token: TokenBase):
+async def start_searching(voyage: SearchVoyageBase,
+                          token: Optional[str] = Cookie(None)):
     # TODO: Cambiar el Schema de voyage
 
     """
@@ -77,7 +78,7 @@ async def start_searching(voyage: SearchVoyageBase, token: TokenBase):
 
 @router.post('/search/{id_driver}')
 async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
-                         token: TokenBase):
+                         token: Optional[str] = Cookie(None)):
     """
     Passenger Chose a Driver.
     """
@@ -97,7 +98,7 @@ async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
 
 
 @router.delete('/passenger/search')
-def cancel_search(token: TokenBase):
+def cancel_search(token: Optional[str] = Cookie(None)):
     """
     Client Cancels Voyage Search
     """
@@ -112,7 +113,8 @@ def cancel_search(token: TokenBase):
 
 
 @router.delete('/user/voyage/{voyage_id}')
-def cancel_confirmed_voyage(voyage_id: str, token: TokenBase):
+def cancel_confirmed_voyage(voyage_id: str,
+                            token: Optional[str] = Cookie(None)):
     """
     Cancel Voyage Previously Confirmed By Client
     """
