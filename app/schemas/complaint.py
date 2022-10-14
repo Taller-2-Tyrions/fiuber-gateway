@@ -14,7 +14,6 @@ class ComplaintType(Enum):
 
 class ReviewBase(BaseModel):
     score: int
-    by_driver: bool
     comment: Optional[str]
 
 

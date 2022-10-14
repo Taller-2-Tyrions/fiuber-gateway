@@ -3,6 +3,7 @@ from fastapi import APIRouter, Cookie
 from fastapi.exceptions import HTTPException
 from dotenv import load_dotenv
 import os
+from app.schemas.complaint import ReviewBase
 from app.schemas.voyage_schema import Point
 import requests
 from fastapi.encoders import jsonable_encoder
@@ -155,6 +156,40 @@ def cancel_confirmed_voyage(voyage_id: str,
     uid = validate_req_driver_and_get_uid(token)
     resp = requests.delete(VOYAGE_URL
                            + "/voyage/" + voyage_id + "/" + uid)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
+
+
+@router.get('/last')
+def get_lasts_voyages(token: Optional[str] = Cookie(None)):
+    """
+    Get last voyages made by passenger
+    """
+    uid = validate_req_driver_and_get_uid(token)
+    resp = requests.get(VOYAGE_URL
+                        + "/voyage/last/" + uid + "/true")
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
+
+
+@router.post('/review/{voyage_id}')
+def add_review(voyage_id: str, review: ReviewBase,
+               token: Optional[str] = Cookie(None)):
+    """
+    Add a review from driver to passenger.
+    """
+    uid = validate_req_driver_and_get_uid(token)
+    rev = jsonable_encoder(review)
+    rev["by_driver"] = True
+    resp = requests.post(VOYAGE_URL
+                         + "/voyage/review/" + voyage_id + "/" + uid,
+                         json=rev)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
