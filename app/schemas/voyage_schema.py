@@ -40,9 +40,9 @@ class PassengerBase(BaseModel):
 
 
 class SearchVoyageBase(BaseModel):
-    passenger: PassengerBase
     init: Point
     end: Point
+    is_vip: bool
 
 
 class VoyageBase(BaseModel):
