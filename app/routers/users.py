@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Cookie
 from fastapi.exceptions import HTTPException
 
+from app.services.validation_services import validate_req_user_and_get_uid
 from app.services.validation_services import validate_token
+from app.services.validation_services import validate_req_driver_and_get_uid
 from ..schemas.users_schema import Roles, UserBase, DriverBase
 from ..schemas.users_schema import ProfilePictureBase
 from fastapi.encoders import jsonable_encoder
@@ -38,13 +40,13 @@ async def create_user(user: Union[UserBase, DriverBase],
         raise HTTPException(detail=data["detail"],
                             status_code=req.status_code)
     if (Roles.USER.value in user.roles):
-        resp = requests.post(VOYAGE_URL+"/voyage/passenger/"+id)
+        resp = requests.post(VOYAGE_URL+"/voyage/passenger/signup"+id)
         data = resp.json()
         if (not is_status_correct(resp.status_code)):
             raise HTTPException(detail=data["detail"],
                                 status_code=resp.status_code)
     elif (Roles.DRIVER.value in user.roles):
-        resp = requests.post(VOYAGE_URL+"/voyage/driver/"+id)
+        resp = requests.post(VOYAGE_URL+"/voyage/driver/signup"+id)
         data = resp.json()
         if (not is_status_correct(resp.status_code)):
             raise HTTPException(detail=data["detail"],
@@ -86,10 +88,7 @@ async def find_user(id_user: str, token: Optional[str] = Cookie(None)):
     return data
 
 
-@router.put('/{id_user}')
-async def modify_user(id_user: str, user: Union[UserBase, DriverBase],
-                      token: Optional[str] = Cookie(None)):
-    caller_id = validate_token(token)
+def request_modifications(id_user, user, caller_id):
     req = requests.put(USERS_URL + "/users?user_id=" + id_user
                        + "&user_caller=" + caller_id,
                        json=jsonable_encoder(user))
@@ -97,3 +96,53 @@ async def modify_user(id_user: str, user: Union[UserBase, DriverBase],
         data = req.json()
         raise HTTPException(detail=data["detail"],
                             status_code=req.status_code)
+
+
+@router.put('/passenger/{id_user}')
+async def modify_passenger(id_user: str, user: UserBase,
+                           token: Optional[str] = Cookie(None)):
+    """
+    Modify a Passenger
+    """
+    caller_id = validate_req_user_and_get_uid(token)
+    request_modifications(id_user, user, caller_id)
+
+
+@router.put('/driver/{id_user}')
+async def modify_driver(id_user: str, user: DriverBase,
+                        token: Optional[str] = Cookie(None)):
+    """
+    Modify a Driver
+    """
+    caller_id = validate_req_driver_and_get_uid(token)
+    request_modifications(id_user, user, caller_id)
+
+
+@router.post('/driver/{id_user}')
+async def add_driver_role(id_user: str, user: DriverBase,
+                          token: Optional[str] = Cookie(None)):
+    """
+    Add a driver role to an user
+    """
+    caller_id = validate_req_driver_and_get_uid(token)
+    request_modifications(id_user, user, caller_id)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/signup"+id)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+
+
+@router.post('/passenger/{id_user}')
+async def add_passenger_role(id_user: str, user: DriverBase,
+                             token: Optional[str] = Cookie(None)):
+    """
+    Add a passenger role to an user
+    """
+    caller_id = validate_req_user_and_get_uid(token)
+    request_modifications(id_user, user, caller_id)
+    resp = requests.post(VOYAGE_URL+"/voyage/passenger/signup"+id)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)

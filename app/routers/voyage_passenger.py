@@ -3,6 +3,7 @@ from fastapi import APIRouter, Cookie
 from fastapi.exceptions import HTTPException
 from dotenv import load_dotenv
 import os
+from app.schemas.complaint import ComplaintBase
 from app.schemas.voyage_schema import SearchVoyageBase
 import requests
 from fastapi.encoders import jsonable_encoder
@@ -56,8 +57,6 @@ def passenger_unsubscribes_to_vip(token: Optional[str] = Cookie(None)):
 @router.post('/search')
 async def start_searching(voyage: SearchVoyageBase,
                           token: Optional[str] = Cookie(None)):
-    # TODO: Cambiar el Schema de voyage
-
     """
     Passenger Search For All Nearest Drivers
     """
@@ -65,7 +64,7 @@ async def start_searching(voyage: SearchVoyageBase,
 
     voyage_body = jsonable_encoder(voyage)
 
-    voyage_body["passenger"]["id"] = uid
+    voyage_body["passenger_id"] = uid
 
     resp = requests.post(VOYAGE_URL+"/voyage/passenger/search",
                          json=voyage_body)
@@ -86,7 +85,7 @@ async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
 
     voyage_body = jsonable_encoder(voyage)
 
-    voyage_body["passenger"]["id"] = uid
+    voyage_body["passenger_id"] = uid
 
     resp = requests.post(VOYAGE_URL+"/voyage/passenger/search/"+id_driver,
                          json=voyage_body)
@@ -97,7 +96,7 @@ async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
     return data
 
 
-@router.delete('/passenger/search')
+@router.delete('/search')
 def cancel_search(token: Optional[str] = Cookie(None)):
     """
     Client Cancels Voyage Search
@@ -112,15 +111,33 @@ def cancel_search(token: Optional[str] = Cookie(None)):
     return data
 
 
-@router.delete('/user/voyage/{voyage_id}')
+@router.post('/complaint/{voyage_id}')
+def add_passanger_complaint(voyage_id: str, complaint: ComplaintBase,
+                            token: Optional[str] = Cookie(None)):
+    """
+    Passenger Load A Complaint Of Voyage
+    """
+    uid = validate_req_user_and_get_uid(token)
+    resp = requests.post(VOYAGE_URL
+                         + "/voyage/passenger/complaint/" +
+                         voyage_id + "/" + uid,
+                         json=jsonable_encoder(complaint))
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
+
+
+@router.delete('/voyage/{voyage_id}')
 def cancel_confirmed_voyage(voyage_id: str,
                             token: Optional[str] = Cookie(None)):
     """
-    Cancel Voyage Previously Confirmed By Client
+    Cancel Voyage Previously Confirmed By Passenger
     """
     uid = validate_req_user_and_get_uid(token)
     resp = requests.delete(VOYAGE_URL
-                           + "/voyage/voyage/" + voyage_id + "/" + uid)
+                           + "/voyage/" + voyage_id + "/" + uid)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
