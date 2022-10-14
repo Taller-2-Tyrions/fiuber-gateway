@@ -14,7 +14,7 @@ env:
 jobs:
   flake8:
     name: Linter
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -28,7 +28,7 @@ jobs:
         flake8 .
 
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     name: Testing
     defaults:
       run:
@@ -47,7 +47,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: ${{ github.event_name == 'push' }}
     name: Deployment
     needs: [ flake8, test ]
