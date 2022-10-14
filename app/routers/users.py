@@ -66,7 +66,7 @@ async def delete_user(id_user: str,
                       token: Optional[str] = Cookie(None)):
     caller_id = validate_token(token)
     req = requests.delete(USERS_URL + "/users/" +
-                          id_user + "?user_caller=" + caller_id)
+                          id_user + "/" + caller_id)
     if (not is_status_correct(req.status_code)):
         data = req.json()
         raise HTTPException(detail=data["detail"],
@@ -77,7 +77,7 @@ async def delete_user(id_user: str,
 async def find_user(id_user: str, token: Optional[str] = Cookie(None)):
     caller_id = validate_token(token)
     req = requests.get(USERS_URL + "/users/" +
-                       id_user + "?user_caller=" + caller_id)
+                       id_user + "/" + caller_id)
     data = req.json()
     if (not is_status_correct(req.status_code)):
         raise HTTPException(detail=data["detail"],
@@ -89,8 +89,8 @@ async def find_user(id_user: str, token: Optional[str] = Cookie(None)):
 
 
 def request_modifications(id_user, user, caller_id):
-    req = requests.put(USERS_URL + "/users?user_id=" + id_user
-                       + "&user_caller=" + caller_id,
+    req = requests.put(USERS_URL + "/users/" + id_user
+                       + "/" + caller_id,
                        json=jsonable_encoder(user))
     if (not is_status_correct(req.status_code)):
         data = req.json()
