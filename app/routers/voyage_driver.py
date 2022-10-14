@@ -24,12 +24,14 @@ def is_status_correct(status_code):
 
 
 @router.post('/searching')
-def activate_driver(token: TokenBase):
+def activate_driver(token: TokenBase, location: Point):
     """
     Add Driver To Is Searching List
     """
     uid = validate_req_driver_and_get_uid(token)
-    resp = requests.post(VOYAGE_URL+"/voyage/driver/searching/"+uid)
+    location_body = jsonable_encoder(location)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/searching/"+uid,
+                         json=location_body)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
@@ -96,7 +98,7 @@ def update_location(location: Point, token: TokenBase):
 
 
 @router.post('/{id_voyage}/{status}')
-def accept_voyage(id_voyage: str, status: bool, token: TokenBase):
+def reply_voyage_solicitation(id_voyage: str, status: bool, token: TokenBase):
     """
     Driver Acepts (True) / Declines (False) passenger solicitation
     """
