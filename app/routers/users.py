@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Cookie
 from fastapi.exceptions import HTTPException
-from ..schemas.users_schema import UserBase, DriverBase
+
+from app.schemas.voyage_schema import Point
+from ..schemas.users_schema import Roles, UserBase, DriverBase
 from ..schemas.users_schema import ProfilePictureBase, TokenBase
 from fastapi.encoders import jsonable_encoder
 import requests
@@ -10,6 +12,7 @@ import os
 
 load_dotenv()
 USERS_URL = os.getenv("USERS_URL")
+VOYAGE_URL = os.getenv("VOYAGE_URL")
 
 
 router = APIRouter(
@@ -36,7 +39,18 @@ async def create_user(user: Union[UserBase, DriverBase],
             data = req.json()
             raise HTTPException(detail=data["detail"],
                                 status_code=req.status_code)
-        # TODO: Hacer add driver / passenger
+        if (Roles.USER.value in user.roles):
+            resp = requests.post(VOYAGE_URL+"/voyage/passenger/"+id)
+            data = resp.json()
+            if (not is_status_correct(resp.status_code)):
+                raise HTTPException(detail=data["detail"],
+                                    status_code=resp.status_code)
+        elif (Roles.DRIVER.value in user.roles):
+            resp = requests.post(VOYAGE_URL+"/voyage/driver/"+id)
+            data = resp.json()
+            if (not is_status_correct(resp.status_code)):
+                raise HTTPException(detail=data["detail"],
+                                    status_code=resp.status_code)
     else:
         raise HTTPException(detail=req.json()["detail"],
                             status_code=req.status_code)
