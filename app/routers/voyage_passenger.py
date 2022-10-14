@@ -104,7 +104,7 @@ def cancel_search(token: Optional[str] = Cookie(None)):
     """
     uid = validate_req_user_and_get_uid(token)
     resp = requests.delete(VOYAGE_URL
-                           + "/voyage/passenger/search/?passenger_id=" + uid)
+                           + "/voyage/passenger/search/" + uid)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
