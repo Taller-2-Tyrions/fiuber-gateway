@@ -36,6 +36,7 @@ async def create_user(user: Union[UserBase, DriverBase],
             data = req.json()
             raise HTTPException(detail=data["detail"],
                                 status_code=req.status_code)
+        # TODO: Hacer add driver / passenger
     else:
         raise HTTPException(detail=req.json()["detail"],
                             status_code=req.status_code)

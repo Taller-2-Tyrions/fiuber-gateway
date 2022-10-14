@@ -3,21 +3,19 @@ from fastapi.exceptions import HTTPException
 from dotenv import load_dotenv
 import os
 from ..schemas.users_schema import TokenBase
-from app.schemas.voyage_schema import DriverBaseVoyage, SearchVoyageBase
+from app.schemas.voyage_schema import Point
 import requests
 from fastapi.encoders import jsonable_encoder
-from ..services.validation_services import validate_req_user_and_get_uid
 from ..services.validation_services import validate_req_driver_and_get_uid
 
 
 load_dotenv()
-USERS_URL = os.getenv("USERS_URL")
 VOYAGE_URL = os.getenv("VOYAGE_URL")
 
 
 router = APIRouter(
-    prefix="/voyage",
-    tags=['Voyage']
+    prefix="/voyage/driver",
+    tags=['Driver endpoints in Voyage']
 )
 
 
@@ -25,88 +23,13 @@ def is_status_correct(status_code):
     return status_code//100 == 2
 
 
-@router.post('/user')
-async def init_voyage(voyage: SearchVoyageBase, token: TokenBase):
+@router.post('/searching')
+def activate_driver(token: TokenBase):
     """
-    Client Search For All Nearest Drivers
-    """
-    uid = validate_req_user_and_get_uid(token)
-
-    voyage_body = jsonable_encoder(voyage)
-
-    voyage_body["passenger"]["id"] = uid
-
-    resp = requests.post(VOYAGE_URL+"/voyage/user", json=voyage_body)
-    data = resp.json()
-    if (not is_status_correct(resp.status_code)):
-        raise HTTPException(detail=data["detail"],
-                            status_code=resp.status_code)
-    return data
-
-
-@router.post('/user/{id_driver}')
-async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
-                         token: TokenBase):
-    """
-    Client Chose a Driver.
-    """
-    uid = validate_req_user_and_get_uid(token)
-
-    voyage_body = jsonable_encoder(voyage)
-
-    voyage_body["passenger"]["id"] = uid
-
-    resp = requests.post(VOYAGE_URL+"/voyage/user/"+id_driver,
-                         json=voyage_body)
-    data = resp.json()
-    if (not is_status_correct(resp.status_code)):
-        raise HTTPException(detail=data["detail"],
-                            status_code=resp.status_code)
-    return data
-
-
-@router.delete('/user/voyage_search')
-def cancel_search(token: TokenBase):
-    """
-    Client Cancels Voyage Search
-    """
-    uid = validate_req_user_and_get_uid(token)
-    resp = requests.delete(VOYAGE_URL
-                           + "/voyage/voyage_search/?passenger_id=" + uid)
-    data = resp.json()
-    if (not is_status_correct(resp.status_code)):
-        raise HTTPException(detail=data["detail"],
-                            status_code=resp.status_code)
-    return data
-
-
-@router.delete('/user/voyage/{voyage_id}')
-def cancel_confirmed_voyage(voyage_id: str, token: TokenBase):
-    """
-    Cancel Voyage Previously Confirmed By Client
-    """
-    uid = validate_req_user_and_get_uid(token)
-    resp = requests.delete(VOYAGE_URL
-                           + "/voyage/voyage/" + voyage_id + "/" + uid)
-    data = resp.json()
-    if (not is_status_correct(resp.status_code)):
-        raise HTTPException(detail=data["detail"],
-                            status_code=resp.status_code)
-    return data
-
-
-@router.post('/driver')
-def add_driver(driver: DriverBaseVoyage, token: TokenBase):
-    """
-    Add Driver To Searching List
+    Add Driver To Is Searching List
     """
     uid = validate_req_driver_and_get_uid(token)
-
-    driver_body = jsonable_encoder(driver)
-
-    driver_body["id"] = uid
-
-    resp = requests.post(VOYAGE_URL+"/voyage/driver/", json=driver_body)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/searching/"+uid)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
@@ -114,10 +37,68 @@ def add_driver(driver: DriverBaseVoyage, token: TokenBase):
     return data
 
 
-@router.post('/driver/{id_voyage}/{status}')
+@router.post('/offline')
+def deactivate_driver(token: TokenBase):
+    """
+    A Seaching driver is set to Offline.
+    """
+    uid = validate_req_driver_and_get_uid(token)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/offline/"+uid)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
+
+
+@router.post('/vip/subscription')
+def driver_subscribes_to_vip(token: TokenBase):
+    """
+    A Driver subscribes to VIP Package.
+    """
+    uid = validate_req_driver_and_get_uid(token)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/vip/"+uid+"/true")
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
+
+
+@router.post('/vip/unsubscription')
+def driver_unsubscribes_vip(token: TokenBase):
+    """
+    A Driver leaves VIP Package.
+    """
+    uid = validate_req_driver_and_get_uid(token)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/vip/"+uid+"/false")
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
+
+
+@router.post('/location')
+def update_location(location: Point, token: TokenBase):
+    """
+    Updates the Driver location in real time.
+    """
+    location_body = jsonable_encoder(location)
+    uid = validate_req_driver_and_get_uid(token)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/location/"+uid,
+                         json=location_body)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
+
+
+@router.post('/{id_voyage}/{status}')
 def accept_voyage(id_voyage: str, status: bool, token: TokenBase):
     """
-    Driver Acepts (True) / Declines (False) client solicitation
+    Driver Acepts (True) / Declines (False) passenger solicitation
     """
     uid = validate_req_driver_and_get_uid(token)
     resp = requests.post(VOYAGE_URL+"/voyage/driver/"
@@ -129,13 +110,14 @@ def accept_voyage(id_voyage: str, status: bool, token: TokenBase):
     return data
 
 
-@router.post('/driver/start/{voyage_id}')
+@router.post('/start/{voyage_id}')
 def inform_start_voyage(voyage_id: str, token: TokenBase):
     """
-    Inform Driver Arrived Initial Point
+    Driver Informs Arrived at Initial Point.
     """
     uid = validate_req_driver_and_get_uid(token)
-    resp = requests.post(VOYAGE_URL+"/voyage/start/" + voyage_id + "/" + uid)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/start/" +
+                         voyage_id + "/" + uid)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
@@ -143,13 +125,14 @@ def inform_start_voyage(voyage_id: str, token: TokenBase):
     return data
 
 
-@router.post('/driver/finish/{voyage_id}')
+@router.post('/end/{voyage_id}')
 def inform_finish_voyage(voyage_id: str, token: TokenBase):
     """
-    Inform Voyage Has Finished
+    Driver Informs Voyage Has Finished.
     """
     uid = validate_req_driver_and_get_uid(token)
-    resp = requests.post(VOYAGE_URL+"/voyage/finish/" + voyage_id + "/" + uid)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/end/"
+                         + voyage_id + "/" + uid)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
