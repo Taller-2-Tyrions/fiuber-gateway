@@ -7,7 +7,7 @@ from app.schemas.complaint import ComplaintBase, ReviewBase
 from app.schemas.voyage_schema import SearchVoyageBase
 import requests
 from fastapi.encoders import jsonable_encoder
-from ..services.validation_services import validate_req_user_and_get_uid
+from ..services.validation_services import validate_req_passenger_and_get_uid
 
 
 load_dotenv()
@@ -29,7 +29,7 @@ def passenger_subscribes_to_vip(token: Optional[str] = Cookie(None)):
     """
     A Passenger subscribes to VIP Package.
     """
-    uid = validate_req_user_and_get_uid(token)
+    uid = validate_req_passenger_and_get_uid(token)
     resp = requests.post(VOYAGE_URL
                          + "/voyage/passenger/vip/"+uid+"/"+"/true")
     data = resp.json()
@@ -44,7 +44,7 @@ def passenger_unsubscribes_to_vip(token: Optional[str] = Cookie(None)):
     """
     A Passenger unsubscribes to VIP Package.
     """
-    uid = validate_req_user_and_get_uid(token)
+    uid = validate_req_passenger_and_get_uid(token)
     resp = requests.post(VOYAGE_URL
                          + "/voyage/passenger/vip/"+uid+"/"+"/false")
     data = resp.json()
@@ -60,7 +60,7 @@ async def start_searching(voyage: SearchVoyageBase,
     """
     Passenger Search For All Nearest Drivers
     """
-    uid = validate_req_user_and_get_uid(token)
+    uid = validate_req_passenger_and_get_uid(token)
 
     voyage_body = jsonable_encoder(voyage)
 
@@ -81,7 +81,7 @@ async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
     """
     Passenger Chose a Driver.
     """
-    uid = validate_req_user_and_get_uid(token)
+    uid = validate_req_passenger_and_get_uid(token)
 
     voyage_body = jsonable_encoder(voyage)
 
@@ -101,7 +101,7 @@ def cancel_search(token: Optional[str] = Cookie(None)):
     """
     Client Cancels Voyage Search
     """
-    uid = validate_req_user_and_get_uid(token)
+    uid = validate_req_passenger_and_get_uid(token)
     resp = requests.delete(VOYAGE_URL
                            + "/voyage/passenger/search/" + uid)
     data = resp.json()
@@ -117,7 +117,7 @@ def add_passanger_complaint(voyage_id: str, complaint: ComplaintBase,
     """
     Passenger Load A Complaint Of Voyage
     """
-    uid = validate_req_user_and_get_uid(token)
+    uid = validate_req_passenger_and_get_uid(token)
     resp = requests.post(VOYAGE_URL
                          + "/voyage/passenger/complaint/" +
                          voyage_id + "/" + uid,
@@ -135,7 +135,7 @@ def cancel_confirmed_voyage(voyage_id: str,
     """
     Cancel Voyage Previously Confirmed By Passenger
     """
-    uid = validate_req_user_and_get_uid(token)
+    uid = validate_req_passenger_and_get_uid(token)
     resp = requests.delete(VOYAGE_URL
                            + "/voyage/" + voyage_id + "/" + uid)
     data = resp.json()
@@ -150,7 +150,7 @@ def get_lasts_voyages(token: Optional[str] = Cookie(None)):
     """
     Get last voyages made by passenger
     """
-    uid = validate_req_user_and_get_uid(token)
+    uid = validate_req_passenger_and_get_uid(token)
     resp = requests.get(VOYAGE_URL
                         + "/voyage/last/" + uid + "/false")
     data = resp.json()
@@ -166,7 +166,7 @@ def add_review(voyage_id: str, review: ReviewBase,
     """
     Add a review from passenger to driver.
     """
-    uid = validate_req_user_and_get_uid(token)
+    uid = validate_req_passenger_and_get_uid(token)
     rev = jsonable_encoder(review)
     rev["by_driver"] = False
     resp = requests.post(VOYAGE_URL

@@ -4,7 +4,7 @@ from enum import Enum
 
 
 class Roles(Enum):
-    USER = "User"
+    PASSENGER = "Passenger"
     DRIVER = "Driver"
     ADMIN = "Admin"
 
@@ -26,7 +26,7 @@ class PersonBase(BaseModel):
     roles: List[Roles]
 
 
-class UserBase(PersonBase):
+class PassengerBase(PersonBase):
     address: str
 
 
