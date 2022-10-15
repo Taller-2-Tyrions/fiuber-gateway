@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, Cookie
+from fastapi import APIRouter, Header
 from fastapi.exceptions import HTTPException
 from dotenv import load_dotenv
 import os
@@ -25,7 +25,7 @@ def is_status_correct(status_code):
 
 
 @router.post('/vip/subscription')
-def passenger_subscribes_to_vip(token: Optional[str] = Cookie(None)):
+def passenger_subscribes_to_vip(token: Optional[str] = Header(None)):
     """
     A Passenger subscribes to VIP Package.
     """
@@ -40,7 +40,7 @@ def passenger_subscribes_to_vip(token: Optional[str] = Cookie(None)):
 
 
 @router.post('/vip/unsubscription')
-def passenger_unsubscribes_to_vip(token: Optional[str] = Cookie(None)):
+def passenger_unsubscribes_to_vip(token: Optional[str] = Header(None)):
     """
     A Passenger unsubscribes to VIP Package.
     """
@@ -56,7 +56,7 @@ def passenger_unsubscribes_to_vip(token: Optional[str] = Cookie(None)):
 
 @router.post('/search')
 async def start_searching(voyage: SearchVoyageBase,
-                          token: Optional[str] = Cookie(None)):
+                          token: Optional[str] = Header(None)):
     """
     Passenger Search For All Nearest Drivers
     """
@@ -77,7 +77,7 @@ async def start_searching(voyage: SearchVoyageBase,
 
 @router.post('/search/{id_driver}')
 async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
-                         token: Optional[str] = Cookie(None)):
+                         token: Optional[str] = Header(None)):
     """
     Passenger Chose a Driver.
     """
@@ -97,7 +97,7 @@ async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
 
 
 @router.delete('/search')
-def cancel_search(token: Optional[str] = Cookie(None)):
+def cancel_search(token: Optional[str] = Header(None)):
     """
     Client Cancels Voyage Search
     """
@@ -113,7 +113,7 @@ def cancel_search(token: Optional[str] = Cookie(None)):
 
 @router.post('/complaint/{voyage_id}')
 def add_passanger_complaint(voyage_id: str, complaint: ComplaintBase,
-                            token: Optional[str] = Cookie(None)):
+                            token: Optional[str] = Header(None)):
     """
     Passenger Load A Complaint Of Voyage
     """
@@ -131,7 +131,7 @@ def add_passanger_complaint(voyage_id: str, complaint: ComplaintBase,
 
 @router.delete('/{voyage_id}')
 def cancel_confirmed_voyage(voyage_id: str,
-                            token: Optional[str] = Cookie(None)):
+                            token: Optional[str] = Header(None)):
     """
     Cancel Voyage Previously Confirmed By Passenger
     """
@@ -146,7 +146,7 @@ def cancel_confirmed_voyage(voyage_id: str,
 
 
 @router.get('/last')
-def get_lasts_voyages(token: Optional[str] = Cookie(None)):
+def get_lasts_voyages(token: Optional[str] = Header(None)):
     """
     Get last voyages made by passenger
     """
@@ -162,7 +162,7 @@ def get_lasts_voyages(token: Optional[str] = Cookie(None)):
 
 @router.post('/review/{voyage_id}')
 def add_review(voyage_id: str, review: ReviewBase,
-               token: Optional[str] = Cookie(None)):
+               token: Optional[str] = Header(None)):
     """
     Add a review from passenger to driver.
     """

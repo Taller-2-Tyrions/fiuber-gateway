@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, status, Cookie
+from fastapi import APIRouter, status, Header
 from fastapi.exceptions import HTTPException
 from ..schemas.users_schema import AuthBase, RecoveryEmailBase
 from fastapi.encoders import jsonable_encoder
@@ -37,7 +37,8 @@ async def login(params: AuthBase):
 
 
 @router.post('/google')
-async def login_google(token: Optional[str] = Cookie(None)):
+async def login_google(token: Optional[str] = Header(None)):
+    print("llamaron al login")
     params = {
         "token": token
     }
@@ -46,5 +47,5 @@ async def login_google(token: Optional[str] = Cookie(None)):
 
     data = req.json()
     if (req.status_code != 200):
-        raise HTTPException(detail=data["detail"], status_code=req.status_code)
+        raise HTTPException(detail=data["detail"], status_code=401)
     return data

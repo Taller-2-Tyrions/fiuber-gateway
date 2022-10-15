@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Cookie
+from fastapi import APIRouter, Header
 from fastapi.exceptions import HTTPException
 
 from app.services.validation_services import validate_req_passenger_and_get_uid
@@ -29,7 +29,7 @@ def is_status_correct(status_code):
 
 @router.post('/')
 async def create_user(user: Union[PassengerBase, DriverBase],
-                      token: Optional[str] = Cookie(None)):
+                      token: Optional[str] = Header(None)):
     id = validate_token(token)
     user = jsonable_encoder(user)
     user["id"] = id
@@ -55,7 +55,7 @@ async def create_user(user: Union[PassengerBase, DriverBase],
 
 @router.post('/profile/picture')
 async def post_picture(user: ProfilePictureBase,
-                       token: Optional[str] = Cookie(None)):
+                       token: Optional[str] = Header(None)):
     id = validate_token(token)
     return requests.post(USERS_URL+"/"+id+"/profile/picture",
                          json=jsonable_encoder(user))
@@ -63,7 +63,7 @@ async def post_picture(user: ProfilePictureBase,
 
 @router.delete('/{id_user}')
 async def delete_user(id_user: str,
-                      token: Optional[str] = Cookie(None)):
+                      token: Optional[str] = Header(None)):
     caller_id = validate_token(token)
     req = requests.delete(USERS_URL + "/users/" +
                           id_user + "/" + caller_id)
@@ -74,7 +74,7 @@ async def delete_user(id_user: str,
 
 
 @router.get('/{id_user}')
-async def find_user(id_user: str, token: Optional[str] = Cookie(None)):
+async def find_user(id_user: str, token: Optional[str] = Header(None)):
     caller_id = validate_token(token)
     req = requests.get(USERS_URL + "/users/" +
                        id_user + "/" + caller_id)
@@ -100,7 +100,7 @@ def request_modifications(id_user, user, caller_id):
 
 @router.put('/passenger/{id_user}')
 async def modify_passenger(id_user: str, user: PassengerBase,
-                           token: Optional[str] = Cookie(None)):
+                           token: Optional[str] = Header(None)):
     """
     Modify a Passenger
     """
@@ -110,7 +110,7 @@ async def modify_passenger(id_user: str, user: PassengerBase,
 
 @router.put('/driver/{id_user}')
 async def modify_driver(id_user: str, user: DriverBase,
-                        token: Optional[str] = Cookie(None)):
+                        token: Optional[str] = Header(None)):
     """
     Modify a Driver
     """
@@ -120,7 +120,7 @@ async def modify_driver(id_user: str, user: DriverBase,
 
 @router.post('/driver/{id_user}')
 async def add_driver_role(id_user: str, user: DriverBase,
-                          token: Optional[str] = Cookie(None)):
+                          token: Optional[str] = Header(None)):
     """
     Add a driver role to an user
     """
@@ -135,7 +135,7 @@ async def add_driver_role(id_user: str, user: DriverBase,
 
 @router.post('/passenger/{id_user}')
 async def add_passenger_role(id_user: str, user: DriverBase,
-                             token: Optional[str] = Cookie(None)):
+                             token: Optional[str] = Header(None)):
     """
     Add a passenger role to an user
     """
