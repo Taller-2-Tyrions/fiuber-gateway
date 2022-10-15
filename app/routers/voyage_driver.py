@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, Cookie
+from fastapi import APIRouter, Header
 from fastapi.exceptions import HTTPException
 from dotenv import load_dotenv
 import os
@@ -26,7 +26,7 @@ def is_status_correct(status_code):
 
 @router.post('/searching')
 def activate_driver(location: Point,
-                    token: Optional[str] = Cookie(None)):
+                    token: Optional[str] = Header(None)):
     """
     Add Driver To Is Searching List
     """
@@ -42,7 +42,7 @@ def activate_driver(location: Point,
 
 
 @router.post('/offline')
-def deactivate_driver(token: Optional[str] = Cookie(None)):
+def deactivate_driver(token: Optional[str] = Header(None)):
     """
     A Seaching driver is set to Offline.
     """
@@ -56,7 +56,7 @@ def deactivate_driver(token: Optional[str] = Cookie(None)):
 
 
 @router.post('/vip/subscription')
-def driver_subscribes_to_vip(token: Optional[str] = Cookie(None)):
+def driver_subscribes_to_vip(token: Optional[str] = Header(None)):
     """
     A Driver subscribes to VIP Package.
     """
@@ -70,7 +70,7 @@ def driver_subscribes_to_vip(token: Optional[str] = Cookie(None)):
 
 
 @router.post('/vip/unsubscription')
-def driver_unsubscribes_vip(token: Optional[str] = Cookie(None)):
+def driver_unsubscribes_vip(token: Optional[str] = Header(None)):
     """
     A Driver leaves VIP Package.
     """
@@ -84,7 +84,7 @@ def driver_unsubscribes_vip(token: Optional[str] = Cookie(None)):
 
 
 @router.post('/location')
-def update_location(location: Point, token: Optional[str] = Cookie(None)):
+def update_location(location: Point, token: Optional[str] = Header(None)):
     """
     Updates the Driver location in real time.
     """
@@ -101,7 +101,7 @@ def update_location(location: Point, token: Optional[str] = Cookie(None)):
 
 @router.post('/reply/{id_voyage}/{status}')
 def reply_voyage_solicitation(id_voyage: str, status: bool,
-                              token: Optional[str] = Cookie(None)):
+                              token: Optional[str] = Header(None)):
     """
     Driver Acepts (True) / Declines (False) passenger solicitation
     """
@@ -117,7 +117,7 @@ def reply_voyage_solicitation(id_voyage: str, status: bool,
 
 @router.post('/start/{voyage_id}')
 def inform_start_voyage(voyage_id: str,
-                        token: Optional[str] = Cookie(None)):
+                        token: Optional[str] = Header(None)):
     """
     Driver Informs Arrived at Initial Point.
     """
@@ -133,7 +133,7 @@ def inform_start_voyage(voyage_id: str,
 
 @router.post('/end/{voyage_id}')
 def inform_finish_voyage(voyage_id: str,
-                         token: Optional[str] = Cookie(None)):
+                         token: Optional[str] = Header(None)):
     """
     Driver Informs Voyage Has Finished.
     """
@@ -149,7 +149,7 @@ def inform_finish_voyage(voyage_id: str,
 
 @router.delete('/voyage/{voyage_id}')
 def cancel_confirmed_voyage(voyage_id: str,
-                            token: Optional[str] = Cookie(None)):
+                            token: Optional[str] = Header(None)):
     """
     Cancel Voyage Previously Confirmed By Passenger
     """
@@ -164,7 +164,7 @@ def cancel_confirmed_voyage(voyage_id: str,
 
 
 @router.get('/last')
-def get_lasts_voyages(token: Optional[str] = Cookie(None)):
+def get_lasts_voyages(token: Optional[str] = Header(None)):
     """
     Get last voyages made by passenger
     """
@@ -180,7 +180,7 @@ def get_lasts_voyages(token: Optional[str] = Cookie(None)):
 
 @router.post('/review/{voyage_id}')
 def add_review(voyage_id: str, review: ReviewBase,
-               token: Optional[str] = Cookie(None)):
+               token: Optional[str] = Header(None)):
     """
     Add a review from driver to passenger.
     """

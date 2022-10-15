@@ -18,7 +18,7 @@ def validate_token(token):
         return resp.json()["uid"]
     raise HTTPException(detail={
                 'message': resp.reason
-            }, status_code=resp.status_code)
+            }, status_code=401)
 
 
 def validate_req_and_get_uid(token, role):
@@ -33,7 +33,7 @@ def validate_req_and_get_uid(token, role):
                 'message': 'Error Permission Denied',
                 'is_blocked': resp["is_blocked"],
                 'roles': resp["roles"]
-            }, status_code=400)
+            }, status_code=401)
     else:
         raise HTTPException(detail={
                 'message': resp0.reason
