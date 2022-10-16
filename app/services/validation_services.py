@@ -42,8 +42,8 @@ def validate_req_and_get_uid(token, role):
 
 
 def validate_req_driver_and_get_uid(token):
-    validate_req_and_get_uid(token, "Driver")
+    return validate_req_and_get_uid(token, "Driver")
 
 
 def validate_req_passenger_and_get_uid(token):
-    validate_req_and_get_uid(token, "User")
+    return validate_req_and_get_uid(token, "User")
