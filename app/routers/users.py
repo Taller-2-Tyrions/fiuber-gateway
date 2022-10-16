@@ -89,9 +89,12 @@ async def find_user(id_user: str, token: Optional[str] = Header(None)):
 
 
 def request_modifications(id_user, user, caller_id):
+    _user = jsonable_encoder(user)
+    _user["is_blocked"] = False
+
     req = requests.put(USERS_URL + "/users/" + id_user
                        + "/" + caller_id,
-                       json=jsonable_encoder(user))
+                       json=_user)
     if (not is_status_correct(req.status_code)):
         data = req.json()
         raise HTTPException(detail=data["detail"],
