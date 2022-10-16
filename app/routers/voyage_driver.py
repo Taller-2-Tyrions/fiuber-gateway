@@ -106,7 +106,7 @@ def reply_voyage_solicitation(id_voyage: str, status: bool,
     Driver Acepts (True) / Declines (False) passenger solicitation
     """
     uid = validate_req_driver_and_get_uid(token)
-    resp = requests.post(VOYAGE_URL+"/voyage/driver/reply"
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/reply/"
                          + id_voyage + "/" + str(status) + "/" + uid)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
