@@ -39,14 +39,14 @@ async def create_user(user: Union[PassengerBase, DriverBase],
         data = req.json()
         raise HTTPException(detail=data["detail"],
                             status_code=req.status_code)
-    if (Roles.PASSENGER.value in user.roles):
-        resp = requests.post(VOYAGE_URL+"/voyage/passenger/signup"+id)
+    if (Roles.PASSENGER.value in user.get("roles")):
+        resp = requests.post(VOYAGE_URL+"/voyage/passenger/signup/"+id)
         data = resp.json()
         if (not is_status_correct(resp.status_code)):
             raise HTTPException(detail=data["detail"],
                                 status_code=resp.status_code)
-    elif (Roles.DRIVER.value in user.roles):
-        resp = requests.post(VOYAGE_URL+"/voyage/driver/signup"+id)
+    elif (Roles.DRIVER.value in user.get("roles")):
+        resp = requests.post(VOYAGE_URL+"/voyage/driver/signup/"+id)
         data = resp.json()
         if (not is_status_correct(resp.status_code)):
             raise HTTPException(detail=data["detail"],
@@ -130,7 +130,7 @@ async def add_driver_role(id_user: str, user: DriverBase,
     """
     caller_id = validate_token(token)
     request_modifications(id_user, user, caller_id)
-    resp = requests.post(VOYAGE_URL+"/voyage/driver/signup"+id)
+    resp = requests.post(VOYAGE_URL+"/voyage/driver/signup/"+id_user)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
@@ -145,7 +145,7 @@ async def add_passenger_role(id_user: str, user: DriverBase,
     """
     caller_id = validate_token(token)
     request_modifications(id_user, user, caller_id)
-    resp = requests.post(VOYAGE_URL+"/voyage/passenger/signup"+id)
+    resp = requests.post(VOYAGE_URL+"/voyage/passenger/signup/"+id_user)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
