@@ -130,11 +130,8 @@ async def add_driver_role(id_user: str, user: DriverBase,
     """
     caller_id = validate_token(token)
     request_modifications(id_user, user, caller_id)
-    print("add_driver_role::caller_id="+str(caller_id))
-
     resp = requests.post(VOYAGE_URL+"/voyage/driver/signup"+id)
     data = resp.json()
-    print("add_driver_role::data="+str(data))
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
