@@ -124,7 +124,7 @@ async def add_driver_role(id_user: str, user: DriverBase,
     """
     Add a driver role to an user
     """
-    caller_id = validate_req_driver_and_get_uid(token)
+    caller_id = validate_token(token)
     request_modifications(id_user, user, caller_id)
     resp = requests.post(VOYAGE_URL+"/voyage/driver/signup"+id)
     data = resp.json()
@@ -139,7 +139,7 @@ async def add_passenger_role(id_user: str, user: DriverBase,
     """
     Add a passenger role to an user
     """
-    caller_id = validate_req_passenger_and_get_uid(token)
+    caller_id = validate_token(token)
     request_modifications(id_user, user, caller_id)
     resp = requests.post(VOYAGE_URL+"/voyage/passenger/signup"+id)
     data = resp.json()
