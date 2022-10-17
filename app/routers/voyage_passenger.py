@@ -32,7 +32,7 @@ def passenger_subscribes_to_vip(token: Optional[str] = Header(None)):
     """
     uid = validate_req_passenger_and_get_uid(token)
     resp = requests.post(VOYAGE_URL
-                         + "/voyage/passenger/vip/"+uid+"/"+"/true")
+                         + "/voyage/passenger/vip/"+uid+"/true")
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
@@ -47,7 +47,7 @@ def passenger_unsubscribes_to_vip(token: Optional[str] = Header(None)):
     """
     uid = validate_req_passenger_and_get_uid(token)
     resp = requests.post(VOYAGE_URL
-                         + "/voyage/passenger/vip/"+uid+"/"+"/false")
+                         + "/voyage/passenger/vip/"+uid+"/false")
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
@@ -85,9 +85,13 @@ async def start_searching(voyage: SearchVoyageBase,
         if (not is_status_correct(req0.status_code) or
                 driver_profile["is_blocked"]):
             continue
-        req1 = requests.get(USERS_URL+"/"+id_driver+"/profile/picture")
+        req1 = requests.get(USERS_URL+"/users/"+id_driver+"/profile/picture")
         if is_status_correct(req1.status_code):
             driver_profile["profile_picture"] = req1.json().get("img")
+        calification = requests.get(VOYAGE_URL + "/voyage/calification/" +
+                                    id_driver + "/true")
+        if is_status_correct(calification.status_code):
+            driver_profile["calification"] = calification.get("calification")
         driver_profile["prices"] = data.get(id_driver)
         response[id_driver] = driver_profile
 
