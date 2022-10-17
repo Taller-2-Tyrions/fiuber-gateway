@@ -12,6 +12,7 @@ from ..services.validation_services import validate_req_passenger_and_get_uid
 
 load_dotenv()
 VOYAGE_URL = os.getenv("VOYAGE_URL")
+USERS_URL = os.getenv("USERS_URL")
 
 
 router = APIRouter(
@@ -60,11 +61,11 @@ async def start_searching(voyage: SearchVoyageBase,
     """
     Passenger Search For All Nearest Drivers
     """
-    uid = validate_req_passenger_and_get_uid(token)
+    caller_id = validate_req_passenger_and_get_uid(token)
 
     voyage_body = jsonable_encoder(voyage)
 
-    voyage_body["passenger_id"] = uid
+    voyage_body["passenger_id"] = caller_id
 
     resp = requests.post(VOYAGE_URL+"/voyage/passenger/search",
                          json=voyage_body)
@@ -72,7 +73,25 @@ async def start_searching(voyage: SearchVoyageBase,
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
-    return data
+
+    response = {}
+
+    for id_driver in data:
+        if (id_driver == caller_id):
+            continue
+        req0 = requests.get(USERS_URL + "/users/" +
+                            id_driver + "/" + caller_id)
+        driver_profile = req0.json()
+        if (not is_status_correct(req0.status_code) or
+                driver_profile["is_blocked"]):
+            continue
+        req1 = requests.get(USERS_URL+"/"+id_driver+"/profile/picture")
+        if is_status_correct(req1.status_code):
+            driver_profile["profile_picture"] = req1.json().get("img")
+        driver_profile["prices"] = data.get(id_driver)
+        response[id_driver] = driver_profile
+
+    return response
 
 
 @router.post('/search/{id_driver}')
