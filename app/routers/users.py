@@ -1,3 +1,4 @@
+import re
 from fastapi import APIRouter, Header
 from fastapi.exceptions import HTTPException
 
@@ -57,8 +58,12 @@ async def create_user(user: Union[PassengerBase, DriverBase],
 async def post_picture(user: ProfilePictureBase,
                        token: Optional[str] = Header(None)):
     id = validate_token(token)
-    return requests.post(USERS_URL+"/"+id+"/profile/picture",
+    resp = requests.post(USERS_URL+"/users/"+id+"/profile/picture",
                          json=jsonable_encoder(user))
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
 
 
 @router.delete('/{id_user}')
@@ -82,7 +87,7 @@ async def find_user(id_user: str, token: Optional[str] = Header(None)):
     if (not is_status_correct(req.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=req.status_code)
-    req = requests.get(USERS_URL+"/"+id_user+"/profile/picture")
+    req = requests.get(USERS_URL+"/users/"+id_user+"/profile/picture")
     if is_status_correct(req.status_code):
         data["profile_picture"] = req.json().get("img")
     return data
