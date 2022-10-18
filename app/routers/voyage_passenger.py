@@ -93,6 +93,8 @@ async def start_searching(voyage: SearchVoyageBase,
         if is_status_correct(calification.status_code):
             driver_profile["calification"] = calification.get("calification")
         driver_profile["prices"] = data.get(id_driver)
+        loc = requests.get(VOYAGE_URL + "/voyage/driver/location/" + id_driver)
+        driver_profile["location"] = loc.json()['location']
         response[id_driver] = driver_profile
 
     return response
