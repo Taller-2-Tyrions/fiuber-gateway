@@ -1,3 +1,4 @@
+from re import L
 from pydantic import BaseModel
 from typing import List
 from enum import Enum
@@ -39,5 +40,13 @@ class AuthBase(BaseModel):
     password: str
 
 
+class LoginAuthBase(AuthBase):
+    device_token: str
+
+
 class RecoveryEmailBase(BaseModel):
     email: str
+
+
+class DeviceToken(BaseModel):
+    device_token: str

@@ -1,7 +1,7 @@
 from typing import Optional
 from fastapi import APIRouter, status, Header
 from fastapi.exceptions import HTTPException
-from ..schemas.users_schema import AuthBase, RecoveryEmailBase
+from ..schemas.users_schema import AuthBase, DeviceToken, LoginAuthBase, RecoveryEmailBase
 from fastapi.encoders import jsonable_encoder
 import requests
 from dotenv import load_dotenv
@@ -27,7 +27,7 @@ async def send_recover_email(email: RecoveryEmailBase):
 
 
 @router.post('/')
-async def login(params: AuthBase):
+async def login(params: LoginAuthBase):
     req = requests.post(USERS_URL+"/login", json=jsonable_encoder(params))
 
     data = req.json()
@@ -37,11 +37,11 @@ async def login(params: AuthBase):
 
 
 @router.post('/google')
-async def login_google(token: Optional[str] = Header(None)):
+async def login_google(device_token: DeviceToken,
+                       token: Optional[str] = Header(None)):
     print("llamaron al login")
-    params = {
-        "token": token
-    }
+    params = jsonable_encoder(device_token)
+    params["token"] = token
     req = requests.post(USERS_URL+"/login/google",
                         json=params)
 
