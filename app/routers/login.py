@@ -1,7 +1,8 @@
 from typing import Optional
 from fastapi import APIRouter, status, Header
 from fastapi.exceptions import HTTPException
-from ..schemas.users_schema import AuthBase, DeviceToken, LoginAuthBase, RecoveryEmailBase
+from ..schemas.users_schema import LoginAuthBase, RecoveryEmailBase
+from ..schemas.users_schema import DeviceToken
 from fastapi.encoders import jsonable_encoder
 import requests
 from dotenv import load_dotenv

@@ -1,4 +1,3 @@
-import re
 from fastapi import APIRouter, Header
 from fastapi.exceptions import HTTPException
 
