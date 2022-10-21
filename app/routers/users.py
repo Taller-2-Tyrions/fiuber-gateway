@@ -77,9 +77,7 @@ async def delete_user(id_user: str,
                             status_code=req.status_code)
 
 
-@router.get('/{id_user}')
-async def find_user(id_user: str, token: Optional[str] = Header(None)):
-    caller_id = validate_token(token)
+def get_user_info(caller_id, id_user):
     req = requests.get(USERS_URL + "/users/" +
                        id_user + "/" + caller_id)
     data = req.json()
@@ -90,6 +88,12 @@ async def find_user(id_user: str, token: Optional[str] = Header(None)):
     if is_status_correct(req.status_code):
         data["profile_picture"] = req.json().get("img")
     return data
+
+
+@router.get('/{id_user}')
+async def find_user(id_user: str, token: Optional[str] = Header(None)):
+    caller_id = validate_token(token)
+    return get_user_info(caller_id, id_user)
 
 
 def request_modifications(id_user, user, caller_id):
@@ -139,6 +143,51 @@ async def add_driver_role(id_user: str, user: DriverBase,
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
+
+
+def get_public_profile(id: str, token: str, is_driver: bool):
+    caller_id = validate_token(token)
+    data = get_user_info(caller_id, id)
+    resp = requests.get(VOYAGE_URL +
+                        "/voyage/calification/"+id+"/"+str(is_driver))
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=resp.json()["detail"],
+                            status_code=resp.status_code)
+    data.update(resp.json())
+
+    resp = requests.get(VOYAGE_URL +
+                        "/voyage/count/"+id+"/"+str(is_driver))
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=resp.json()["detail"],
+                            status_code=resp.status_code)
+    data.update(resp.json())
+
+    resp = requests.get(VOYAGE_URL +
+                        "/voyage/review/"+id+"/"+str(is_driver))
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=resp.json()["detail"],
+                            status_code=resp.status_code)
+    data.update(resp.json())
+
+    return data
+
+
+@router.get('/driver/{id_driver}')
+async def get_driver_profile(id_driver: str,
+                             token: Optional[str] = Header(None)):
+    """
+    Ask for drivers public information
+    """
+    return get_public_profile(id_driver, token, True)
+
+
+@router.get('/passenger/{id_passenger}')
+async def get_passenger_profile(id_passenger: str,
+                                token: Optional[str] = Header(None)):
+    """
+    Ask for passengers public information
+    """
+    return get_public_profile(id_passenger, token, False)
 
 
 @router.post('/passenger/{id_user}')
