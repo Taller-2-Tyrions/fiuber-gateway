@@ -145,23 +145,25 @@ async def add_driver_role(id_user: str, user: DriverBase,
                             status_code=resp.status_code)
 
 
-@router.get('/driver/{id_driver}')
-async def get_driver_profile(id_driver: str,
-                             token: Optional[str] = Header(None)):
-    """
-    Ask for drivers public information
-    """
+def get_public_profile(id: str, token: str, is_driver: bool):
     caller_id = validate_token(token)
-    data = get_user_info(caller_id, id_driver)
+    data = get_user_info(caller_id, id)
     resp = requests.get(VOYAGE_URL +
-                        "/voyage/calification/"+id_driver+"/true")
+                        "/voyage/calification/"+id+"/"+str(is_driver))
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=resp.json()["detail"],
                             status_code=resp.status_code)
     data.update(resp.json())
 
     resp = requests.get(VOYAGE_URL +
-                        "/voyage/count/"+id_driver+"/true")
+                        "/voyage/count/"+id+"/"+str(is_driver))
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=resp.json()["detail"],
+                            status_code=resp.status_code)
+    data.update(resp.json())
+
+    resp = requests.get(VOYAGE_URL +
+                        "/voyage/review/"+id+"/"+str(is_driver))
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=resp.json()["detail"],
                             status_code=resp.status_code)
@@ -169,15 +171,23 @@ async def get_driver_profile(id_driver: str,
 
     return data
 
-    # todo lo publico en users.
-    # todo lo de voyage
 
-    # Nombre y apellido
-    # Foto de perfil
-    # Calificación general (como driver)
-    # Cantidad de viajes (como driver)
-    # Comentarios/review (como driver)
-    # Auto: capacidad, modelo, marca, patente
+@router.get('/driver/{id_driver}')
+async def get_driver_profile(id_driver: str,
+                             token: Optional[str] = Header(None)):
+    """
+    Ask for drivers public information
+    """
+    return get_public_profile(id_driver, token, True)
+
+
+@router.get('/passenger/{id_passenger}')
+async def get_passenger_profile(id_passenger: str,
+                                token: Optional[str] = Header(None)):
+    """
+    Ask for passengers public information
+    """
+    return get_public_profile(id_passenger, token, False)
 
 
 @router.post('/passenger/{id_user}')
