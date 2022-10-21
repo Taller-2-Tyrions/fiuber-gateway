@@ -77,9 +77,7 @@ async def delete_user(id_user: str,
                             status_code=req.status_code)
 
 
-@router.get('/{id_user}')
-async def find_user(id_user: str, token: Optional[str] = Header(None)):
-    caller_id = validate_token(token)
+def get_user_info(caller_id, id_user):
     req = requests.get(USERS_URL + "/users/" +
                        id_user + "/" + caller_id)
     data = req.json()
@@ -90,6 +88,12 @@ async def find_user(id_user: str, token: Optional[str] = Header(None)):
     if is_status_correct(req.status_code):
         data["profile_picture"] = req.json().get("img")
     return data
+
+
+@router.get('/{id_user}')
+async def find_user(id_user: str, token: Optional[str] = Header(None)):
+    caller_id = validate_token(token)
+    return get_user_info(caller_id, id_user)
 
 
 def request_modifications(id_user, user, caller_id):
@@ -139,6 +143,41 @@ async def add_driver_role(id_user: str, user: DriverBase,
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
+
+
+@router.get('/driver/{id_driver}')
+async def get_driver_profile(id_driver: str,
+                             token: Optional[str] = Header(None)):
+    """
+    Ask for drivers public information
+    """
+    caller_id = validate_token(token)
+    data = get_user_info(caller_id, id_driver)
+    resp = requests.get(VOYAGE_URL +
+                        "/voyage/calification/"+id_driver+"/true")
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=resp.json()["detail"],
+                            status_code=resp.status_code)
+    data.update(resp.json())
+
+    resp = requests.get(VOYAGE_URL +
+                        "/voyage/count/"+id_driver+"/true")
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=resp.json()["detail"],
+                            status_code=resp.status_code)
+    data.update(resp.json())
+
+    return data
+
+    # todo lo publico en users.
+    # todo lo de voyage
+
+    # Nombre y apellido
+    # Foto de perfil
+    # Calificación general (como driver)
+    # Cantidad de viajes (como driver)
+    # Comentarios/review (como driver)
+    # Auto: capacidad, modelo, marca, patente
 
 
 @router.post('/passenger/{id_user}')
