@@ -91,8 +91,13 @@ async def start_searching(voyage: SearchVoyageBase,
         calification = requests.get(VOYAGE_URL + "/voyage/calification/" +
                                     id_driver + "/true")
         if is_status_correct(calification.status_code):
-            # driver_profile["calification"] = calification.get("calification")
-            driver_profile["calification"] = 4.5
+            # TODO: change pls!
+            calification_res = calification.json()['calification']
+            if(calification_res == 'No Calification'):
+                driver_profile["calification"] = 4.5
+                print("Not exist calification to drive id: "+id_driver)
+            else:
+                driver_profile["calification"] = calification_res
         driver_profile["prices"] = data.get(id_driver)
         loc = requests.get(VOYAGE_URL + "/voyage/driver/location/" + id_driver)
         driver_profile["location"] = loc.json()['location']
