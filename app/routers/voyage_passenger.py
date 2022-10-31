@@ -92,7 +92,7 @@ async def start_searching(voyage: SearchVoyageBase,
                                     id_driver + "/true")
         if is_status_correct(calification.status_code):
             calification_res = calification.json()['calification']
-            if(calification_res == 'No Calification'):
+            if (calification_res == 'No Calification'):
                 driver_profile["calification"] = 4.5
                 print("Not exist calification to drive id: "+id_driver)
             else:
