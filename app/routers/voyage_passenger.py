@@ -91,7 +91,6 @@ async def start_searching(voyage: SearchVoyageBase,
         calification = requests.get(VOYAGE_URL + "/voyage/calification/" +
                                     id_driver + "/true")
         if is_status_correct(calification.status_code):
-            # TODO: change pls!
             calification_res = calification.json()['calification']
             if(calification_res == 'No Calification'):
                 driver_profile["calification"] = 4.5
