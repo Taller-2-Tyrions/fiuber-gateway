@@ -71,7 +71,7 @@ async def get_users(token: Optional[str] = Header(None)):
     Get Info From All The Users In Database
     """
     caller_id = validate_req_admin_and_get_uid(token)
-    req = requests.get(USERS_URL+f"/users/{caller_id}")
+    req = requests.get(USERS_URL+f"/users/all/{caller_id}")
     data = req.json()
     if (not is_status_correct(req.status_code)):
         raise HTTPException(detail=data["detail"],
