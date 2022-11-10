@@ -47,3 +47,7 @@ def validate_req_driver_and_get_uid(token):
 
 def validate_req_passenger_and_get_uid(token):
     return validate_req_and_get_uid(token, "Passenger")
+
+
+def validate_req_admin_and_get_uid(token):
+    return validate_req_and_get_uid(token, "Admin")

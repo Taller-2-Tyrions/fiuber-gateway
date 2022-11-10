@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 import http3
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import login, signup, users, voyage_passenger, voyage_driver
+from .routers import login, signup, users, voyage_passenger
+from .routers import voyage_driver, admin
 
 app = FastAPI()
 client = http3.AsyncClient()
@@ -33,6 +34,7 @@ app.include_router(signup.router)
 app.include_router(users.router)
 app.include_router(voyage_passenger.router)
 app.include_router(voyage_driver.router)
+app.include_router(admin.router)
 
 
 @app.get("/")
