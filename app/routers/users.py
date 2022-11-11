@@ -211,6 +211,6 @@ async def add_passenger_role(id_user: str, user: DriverBase,
                             status_code=resp.status_code)
     req = requests.post(PAYMENTS_URL+"/wallet", json={"user_id": id_user})
     data = req.json()
-    if(not is_status_correct(req.status_code)):
+    if (not is_status_correct(req.status_code)):
         raise HTTPException(detail=data["detail"],
-                           status_code=req.status_code)
+                            status_code=req.status_code)
