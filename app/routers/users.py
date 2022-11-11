@@ -15,6 +15,7 @@ import os
 load_dotenv()
 USERS_URL = os.getenv("USERS_URL")
 VOYAGE_URL = os.getenv("VOYAGE_URL")
+PAYMENTS_URL = os.getenv("PAYMENTS_URL")
 
 
 router = APIRouter(
@@ -45,6 +46,11 @@ async def create_user(user: Union[PassengerBase, DriverBase],
         if (not is_status_correct(resp.status_code)):
             raise HTTPException(detail=data["detail"],
                                 status_code=resp.status_code)
+        req = requests.post(PAYMENTS_URL+"/wallet", json={"user_id": id})
+        data = req.json()
+        if (not is_status_correct(req.status_code)):
+            raise HTTPException(detail=data["detail"],
+                                status_code=req.status_code)
     elif (Roles.DRIVER.value in user.get("roles")):
         resp = requests.post(VOYAGE_URL+"/voyage/driver/signup/"+id)
         data = resp.json()
@@ -203,3 +209,8 @@ async def add_passenger_role(id_user: str, user: DriverBase,
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
+    req = requests.post(PAYMENTS_URL+"/wallet", json={"user_id": id_user})
+    data = req.json()
+    if(not is_status_correct(req.status_code)):
+        raise HTTPException(detail=data["detail"],
+                           status_code=req.status_code)
