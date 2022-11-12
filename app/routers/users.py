@@ -6,6 +6,7 @@ from app.services.validation_services import validate_token
 from app.services.validation_services import validate_req_driver_and_get_uid
 from ..schemas.users_schema import Roles, PassengerBase, DriverBase
 from ..schemas.users_schema import ProfilePictureBase
+from ..schemas.users_schema import WithdrawBase
 from fastapi.encoders import jsonable_encoder
 import requests
 from typing import Optional, Union
@@ -15,6 +16,7 @@ import os
 load_dotenv()
 USERS_URL = os.getenv("USERS_URL")
 VOYAGE_URL = os.getenv("VOYAGE_URL")
+PAYMENTS_URL = os.getenv("PAYMENTS_URL")
 
 
 router = APIRouter(
@@ -45,6 +47,11 @@ async def create_user(user: Union[PassengerBase, DriverBase],
         if (not is_status_correct(resp.status_code)):
             raise HTTPException(detail=data["detail"],
                                 status_code=resp.status_code)
+        req = requests.post(PAYMENTS_URL+"/wallet", json={"user_id": id})
+        data = req.json()
+        if (not is_status_correct(req.status_code)):
+            raise HTTPException(detail=data["detail"],
+                                status_code=req.status_code)
     elif (Roles.DRIVER.value in user.get("roles")):
         resp = requests.post(VOYAGE_URL+"/voyage/driver/signup/"+id)
         data = resp.json()
@@ -172,6 +179,59 @@ def get_public_profile(id: str, token: str, is_driver: bool):
     return data
 
 
+@router.get('/driver/balance')
+async def get_driver_balance(token: Optional[str] = Header(None)):
+    """
+    Ask for driver balance
+    """
+    driver_id = validate_token(token)
+    resp = requests.get(PAYMENTS_URL+"/payments/"+driver_id)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+
+    res = {"balance": data['amount']}
+    return res
+
+
+@router.post('/withdraw')
+async def withdraw(withdraw: WithdrawBase,
+                   token: Optional[str] = Header(None)):
+    """
+    Withdraw money for driver
+    """
+    driver_id = validate_token(token)
+
+    resp = requests.post(PAYMENTS_URL+'/withdraw',
+                         json={"userId": driver_id,
+                               "receiverAddress": withdraw.receiver_address,
+                               "amountInEthers": withdraw.amount_in_ethers
+                               })
+    data = resp.json()
+
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return {"hash": data['hash']}
+
+
+@router.get('/passenger/balance')
+async def get_passenger_balance(token: Optional[str] = Header(None)):
+    """
+    Ask for passenger balance
+    """
+    passenger_id = validate_token(token)
+    resp = requests.get(PAYMENTS_URL+"/balance/"+passenger_id)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+
+    res = {"balance": data['balance']}
+    return res
+
+
 @router.get('/driver/{id_driver}')
 async def get_driver_profile(id_driver: str,
                              token: Optional[str] = Header(None)):
@@ -203,3 +263,8 @@ async def add_passenger_role(id_user: str, user: DriverBase,
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
+    req = requests.post(PAYMENTS_URL+"/wallet", json={"user_id": id_user})
+    data = req.json()
+    if (not is_status_correct(req.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=req.status_code)

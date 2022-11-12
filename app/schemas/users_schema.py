@@ -49,3 +49,9 @@ class RecoveryEmailBase(BaseModel):
 
 class DeviceToken(BaseModel):
     device_token: str
+
+
+class WithdrawBase(BaseModel):
+    id_user: str
+    receiver_address: str
+    amount_in_ethers: str
