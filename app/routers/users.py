@@ -6,6 +6,7 @@ from app.services.validation_services import validate_token
 from app.services.validation_services import validate_req_driver_and_get_uid
 from ..schemas.users_schema import Roles, PassengerBase, DriverBase
 from ..schemas.users_schema import ProfilePictureBase
+from ..schemas.users_schema import WithdrawBase
 from fastapi.encoders import jsonable_encoder
 import requests
 from typing import Optional, Union
@@ -192,6 +193,27 @@ async def get_driver_balance(token: Optional[str] = Header(None)):
 
     res = {"balance": data['amount']}
     return res
+
+
+@router.post('/withdraw')
+async def withdraw(withdraw: WithdrawBase,
+                   token: Optional[str] = Header(None)):
+    """
+    Withdraw money for driver
+    """
+    driver_id = validate_token(token)
+
+    resp = requests.post(PAYMENTS_URL+'/withdraw',
+                         json={"userId": driver_id,
+                               "receiverAddress": withdraw.receiver_address,
+                               "amountInEthers": withdraw.amount_in_ethers
+                               })
+    data = resp.json()
+
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return {"hash": data['hash']}
 
 
 @router.get('/passenger/balance')
