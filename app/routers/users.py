@@ -127,6 +127,27 @@ async def modify_passenger(id_user: str, user: PassengerBase,
     request_modifications(id_user, user, caller_id)
 
 
+@router.post('/driver/withdraw')
+async def withdraw(withdraw: WithdrawBase,
+                   token: Optional[str] = Header(None)):
+    """
+    Withdraw money for driver
+    """
+    driver_id = validate_token(token)
+
+    resp = requests.post(PAYMENTS_URL+'/withdraw',
+                         json={"userId": driver_id,
+                               "receiverAddress": withdraw.receiver_address,
+                               "amountInEthers": withdraw.amount_in_ethers
+                               })
+    data = resp.json()
+
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return {"hash": data['hash']}
+
+
 @router.put('/driver/{id_user}')
 async def modify_driver(id_user: str, user: DriverBase,
                         token: Optional[str] = Header(None)):
@@ -193,27 +214,6 @@ async def get_driver_balance(token: Optional[str] = Header(None)):
 
     res = {"balance": data['amount']}
     return res
-
-
-@router.post('/withdraw')
-async def withdraw(withdraw: WithdrawBase,
-                   token: Optional[str] = Header(None)):
-    """
-    Withdraw money for driver
-    """
-    driver_id = validate_token(token)
-
-    resp = requests.post(PAYMENTS_URL+'/withdraw',
-                         json={"userId": driver_id,
-                               "receiverAddress": withdraw.receiver_address,
-                               "amountInEthers": withdraw.amount_in_ethers
-                               })
-    data = resp.json()
-
-    if (not is_status_correct(resp.status_code)):
-        raise HTTPException(detail=data["detail"],
-                            status_code=resp.status_code)
-    return {"hash": data['hash']}
 
 
 @router.get('/passenger/balance')
