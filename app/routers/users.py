@@ -178,6 +178,38 @@ def get_public_profile(id: str, token: str, is_driver: bool):
     return data
 
 
+@router.get('/driver/balance')
+async def get_driver_balance(token: Optional[str] = Header(None)):
+    """
+    Ask for driver balance
+    """
+    driver_id = validate_token(token)
+    resp = requests.get(PAYMENTS_URL+"/payments/"+driver_id)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+
+    res = {"balance": data['amount']}
+    return res
+
+
+@router.get('/passenger/balance')
+async def get_passenger_balance(token: Optional[str] = Header(None)):
+    """
+    Ask for passenger balance
+    """
+    passenger_id = validate_token(token)
+    resp = requests.get(PAYMENTS_URL+"/balance/"+passenger_id)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+
+    res = {"balance": data['balance']}
+    return res
+
+
 @router.get('/driver/{id_driver}')
 async def get_driver_profile(id_driver: str,
                              token: Optional[str] = Header(None)):

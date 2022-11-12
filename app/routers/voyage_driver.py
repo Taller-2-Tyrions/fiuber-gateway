@@ -12,6 +12,7 @@ from ..services.validation_services import validate_req_driver_and_get_uid
 
 load_dotenv()
 VOYAGE_URL = os.getenv("VOYAGE_URL")
+PAYMENTS_URL = os.getenv("PAYMENTS_URL")
 
 
 router = APIRouter(
@@ -144,7 +145,28 @@ def inform_finish_voyage(voyage_id: str,
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
-    return data
+    resp = requests.get(VOYAGE_URL
+                        + "/voyage/" + voyage_id)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+
+    params = {"senderId": data["passenger_id"],
+              "receiverId": data["driver_id"],
+              "amountInEthers": 0.0000001}
+    # En AMOUNT VA data['price'] pero hay que ver si manejamos ethers
+    #  o pesos/dolares
+    # Ya que payments espera en eths pero en voyage lo tenemos en pesos/dolares
+    # Tambien le vamos a pasar el fee que nos quedamos nosotros de ese monto
+
+    resp = requests.post(PAYMENTS_URL+"/deposit",
+                         json=params)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return {"result": "Ok"}
 
 
 @router.delete('/voyage/{voyage_id}')
