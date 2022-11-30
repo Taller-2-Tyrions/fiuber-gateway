@@ -6,6 +6,7 @@ from typing import Optional
 import requests
 import os
 
+
 load_dotenv()
 USERS_URL = os.getenv("USERS_URL")
 
