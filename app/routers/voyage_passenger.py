@@ -94,7 +94,6 @@ async def start_searching(voyage: SearchVoyageBase,
             calification_res = calification.json()['calification']
             if (calification_res == 'No Calification'):
                 driver_profile["calification"] = 4.5
-                print("Not exist calification to drive id: "+id_driver)
             else:
                 driver_profile["calification"] = calification_res
         driver_profile["prices"] = data.get(id_driver)

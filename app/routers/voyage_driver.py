@@ -8,6 +8,7 @@ from app.schemas.voyage_schema import Point
 import requests
 from fastapi.encoders import jsonable_encoder
 from ..services.validation_services import validate_req_driver_and_get_uid
+from ..services.validation_services import validate_token
 
 
 load_dotenv()
@@ -100,6 +101,20 @@ def update_location(location: Point, token: Optional[str] = Header(None)):
     return data
 
 
+@router.get('/location/{voyage_id}')
+def get_location(voyage_id: str, token: Optional[str] = Header(None)):
+    """
+    Get Drivers location in real time.
+    """
+    uid = validate_token(token)
+    resp = requests.get(VOYAGE_URL+"/voyage/location/"+voyage_id+'/'+uid)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
+
+
 @router.post('/reply/{id_voyage}/{status}')
 def reply_voyage_solicitation(id_voyage: str, status: bool,
                               token: Optional[str] = Header(None)):
@@ -146,7 +161,7 @@ def inform_finish_voyage(voyage_id: str,
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
     resp = requests.get(VOYAGE_URL
-                        + "/voyage/" + voyage_id)
+                        + "/voyage/info/" + voyage_id + '/' + uid)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
@@ -156,7 +171,7 @@ def inform_finish_voyage(voyage_id: str,
               "receiverId": data["driver_id"],
               "amountInEthers": 0.0000001}
     # En AMOUNT VA data['price'] pero hay que ver si manejamos ethers
-    #  o pesos/dolares
+    # o pesos/dolares
     # Ya que payments espera en eths pero en voyage lo tenemos en pesos/dolares
     # Tambien le vamos a pasar el fee que nos quedamos nosotros de ese monto
 
