@@ -7,10 +7,10 @@ from fastapi.encoders import jsonable_encoder
 import requests
 from dotenv import load_dotenv
 import os
+from app.services.rabbit_services import push_metric
 
 load_dotenv()
 USERS_URL = os.getenv("USERS_URL")
-
 
 router = APIRouter(
     prefix="/login",
@@ -32,6 +32,12 @@ async def login(params: LoginAuthBase):
     req = requests.post(USERS_URL+"/login", json=jsonable_encoder(params))
 
     data = req.json()
+
+    status = req.status_code == 200
+    push_metric({"event": "Login",
+                "is_federated": False,
+                 "status": status})
+
     if (req.status_code != 200):
         raise HTTPException(detail=data["detail"], status_code=req.status_code)
     return data
@@ -46,6 +52,12 @@ async def login_google(device_token: DeviceToken,
                         json=params)
 
     data = req.json()
+
+    status = req.status_code == 200
+    push_metric({"event": "Login",
+                "is_federated": True,
+                 "status": status})
+
     if (req.status_code != 200):
         raise HTTPException(detail=data["detail"], status_code=401)
     return data
