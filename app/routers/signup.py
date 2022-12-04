@@ -24,7 +24,7 @@ async def signup(params: AuthBase):
 
     status = req.status_code == 200
     push_metric({"event": "Signup",
-                "is_federated": True,
+                "is_federated": False,
                  "status": status})
 
     if (req.status_code != 200):
