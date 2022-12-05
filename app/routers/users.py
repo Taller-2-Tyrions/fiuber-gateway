@@ -228,7 +228,7 @@ async def get_passenger_balance(token: Optional[str] = Header(None)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
 
-    res = {"balance": data['balance']}
+    res = {"balance": data['balance'], "address": data["address"]}
     return res
 
 
