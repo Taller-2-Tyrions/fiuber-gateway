@@ -268,3 +268,14 @@ async def add_passenger_role(id_user: str, user: DriverBase,
     if (not is_status_correct(req.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=req.status_code)
+
+
+@router.post("/status")
+async def get_user_status(token: Optional[str] = Header(None)):
+    caller_id = validate_token(token)
+    resp = requests.get(VOYAGE_URL+"/voyage/status/"+caller_id)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data

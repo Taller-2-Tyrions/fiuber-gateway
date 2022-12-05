@@ -40,7 +40,6 @@ async def login(params: LoginAuthBase):
 @router.post('/google')
 async def login_google(device_token: DeviceToken,
                        token: Optional[str] = Header(None)):
-    print("llamaron al login")
     params = jsonable_encoder(device_token)
     params["token"] = token
     req = requests.post(USERS_URL+"/login/google",

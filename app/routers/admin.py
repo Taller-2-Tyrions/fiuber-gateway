@@ -8,6 +8,7 @@ import requests
 import os
 from ..schemas.pricing import ConstantsBase
 
+
 load_dotenv()
 USERS_URL = os.getenv("USERS_URL")
 PRICING_URL = os.getenv("PRICING_URL")
