@@ -10,7 +10,11 @@ URL = os.getenv("CLOUDAMQP_URL")
 METRICS_QUEUE = os.getenv("METRICS_QUEUE")
 
 params = pika.URLParameters(URL)
+# params = pika.ConnectionParameters(heartbeat=0,
+#                                    host=URL)
 params.socket_timeout = 5
+params.heartbeat = 0
+
 
 connection = pika.BlockingConnection(params)  # Connect to CloudAMQP
 channel = connection.channel()  # start a channel

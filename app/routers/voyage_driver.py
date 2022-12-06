@@ -168,7 +168,7 @@ def inform_finish_voyage(voyage_id: str,
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
 
-    push_metric({"event": "voyage",
+    push_metric({"event": "Voyage",
                 "is_vip": data["is_vip"],
                  "start_time": data["start_time"],
                  "end_time": data["end_time"]})
@@ -185,7 +185,7 @@ def inform_finish_voyage(voyage_id: str,
                          json=params)
     data = resp.json()
     status = resp.status_code == 200
-    push_metric({"event": "payment",
+    push_metric({"event": "Payment",
                 "status": status,
                  "price": data["price"]})
     if (not is_status_correct(resp.status_code)):

@@ -23,6 +23,7 @@ async def send_recover_email(email: RecoveryEmailBase):
     req = requests.post(USERS_URL+"/login/password-recovery",
                         json=jsonable_encoder(email))
     data = req.json()
+    push_metric({"event": "Reset"})
     if (req.status_code != status.HTTP_200_OK):
         raise HTTPException(detail=data["detail"], status_code=req.status_code)
 
@@ -35,7 +36,7 @@ async def login(params: LoginAuthBase):
 
     status = req.status_code == 200
     push_metric({"event": "Login",
-                "is_federated": False,
+                "is_federate": False,
                  "status": status})
 
     if (req.status_code != 200):
@@ -55,7 +56,7 @@ async def login_google(device_token: DeviceToken,
 
     status = req.status_code == 200
     push_metric({"event": "Login",
-                "is_federated": True,
+                "is_federate": True,
                  "status": status})
 
     if (req.status_code != 200):
