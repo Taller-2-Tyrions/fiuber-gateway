@@ -8,3 +8,5 @@ pyrebase4
 firebase-admin
 requests
 python-dotenv
+pika
+datetime

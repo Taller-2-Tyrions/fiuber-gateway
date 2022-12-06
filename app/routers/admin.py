@@ -6,6 +6,7 @@ from app.services.validation_services import validate_req_admin_and_get_uid
 from typing import Optional
 import requests
 import os
+from app.services.rabbit_services import push_metric
 from ..schemas.pricing import ConstantsBase
 
 
@@ -49,6 +50,8 @@ async def block_user(user_id: str,
     caller_id = validate_req_admin_and_get_uid(token)
     req = requests.post(USERS_URL+f"/users/block/{user_id}/{caller_id}")
     data = req.json()
+    push_metric({"event": "Block"})
+
     if (not is_status_correct(req.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=req.status_code)

@@ -9,6 +9,7 @@ import requests
 from fastapi.encoders import jsonable_encoder
 from ..services.validation_services import validate_req_driver_and_get_uid
 from ..services.validation_services import validate_token
+from app.services.rabbit_services import push_metric
 
 
 load_dotenv()
@@ -167,6 +168,11 @@ def inform_finish_voyage(voyage_id: str,
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
 
+    push_metric({"event": "Voyage",
+                "is_vip": data["is_vip"],
+                 "start_time": data["start_time"],
+                 "end_time": data["end_time"]})
+
     params = {"senderId": data["passenger_id"],
               "receiverId": data["driver_id"],
               "amountInEthers": 0.0000001}
@@ -178,6 +184,10 @@ def inform_finish_voyage(voyage_id: str,
     resp = requests.post(PAYMENTS_URL+"/deposit",
                          json=params)
     data = resp.json()
+    status = resp.status_code == 200
+    push_metric({"event": "Payment",
+                "status": status,
+                 "price": data["price"]})
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
