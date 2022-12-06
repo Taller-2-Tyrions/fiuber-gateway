@@ -100,7 +100,23 @@ def get_user_info(caller_id, id_user):
 @router.get('/{id_user}')
 async def find_user(id_user: str, token: Optional[str] = Header(None)):
     caller_id = validate_token(token)
-    return get_user_info(caller_id, id_user)
+    data = get_user_info(caller_id, id_user)
+
+    req = requests.get(VOYAGE_URL +
+                       "/voyage/calification/"+id_user+"/false")
+    if is_status_correct(req.status_code):
+        score = req.json().get("calification")
+        if score != "No Calification":
+            data["passenger_score"] = score
+
+    req = requests.get(VOYAGE_URL +
+                       "/voyage/calification/"+id_user+"/true")
+    if is_status_correct(req.status_code):
+        score = req.json().get("calification")
+        if score != "No Calification":
+            data["driver_score"] = score
+
+    return data
 
 
 def request_modifications(id_user, user, caller_id):
@@ -228,7 +244,7 @@ async def get_passenger_balance(token: Optional[str] = Header(None)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
 
-    res = {"balance": data['balance']}
+    res = {"balance": data['balance'], "address": data["address"]}
     return res
 
 
