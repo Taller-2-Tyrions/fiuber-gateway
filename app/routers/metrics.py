@@ -1,15 +1,8 @@
 from fastapi import APIRouter, Header
 from fastapi.exceptions import HTTPException
-
 from app.services.validation_services import validate_req_admin_and_get_uid
-from app.services.validation_services import validate_token
-from app.services.validation_services import validate_req_driver_and_get_uid
-from ..schemas.users_schema import Roles, PassengerBase, DriverBase
-from ..schemas.users_schema import ProfilePictureBase
-from ..schemas.users_schema import WithdrawBase
-from fastapi.encoders import jsonable_encoder
 import requests
-from typing import Optional, Union
+from typing import Optional
 from dotenv import load_dotenv
 import os
 
