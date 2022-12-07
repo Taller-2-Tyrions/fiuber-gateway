@@ -8,11 +8,13 @@ from app.schemas.voyage_schema import SearchVoyageBase
 import requests
 from fastapi.encoders import jsonable_encoder
 from ..services.validation_services import validate_req_passenger_and_get_uid
+from app.services.rabbit_services import push_metric
 
 
 load_dotenv()
 VOYAGE_URL = os.getenv("VOYAGE_URL")
 USERS_URL = os.getenv("USERS_URL")
+PAYMENTS_URL = os.getenv("PAYMENTS_URL")
 
 
 router = APIRouter(
@@ -171,6 +173,19 @@ def cancel_confirmed_voyage(voyage_id: str,
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
+    if data:
+        resp = requests.post(PAYMENTS_URL+"/deposit",
+                             json=data)
+        data = resp.json()
+        status = resp.status_code == 200
+        push_metric({"event": "Payment",
+                    "status": status,
+                     "price": data["price"]})
+        if (not is_status_correct(resp.status_code)):
+            raise HTTPException(detail=data["detail"],
+                                status_code=resp.status_code)
+        return data["price"]
+
     return data
 
 
