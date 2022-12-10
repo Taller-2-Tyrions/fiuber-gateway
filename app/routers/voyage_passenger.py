@@ -7,7 +7,8 @@ from app.schemas.complaint import ComplaintBase, ReviewBase
 from app.schemas.voyage_schema import SearchVoyageBase
 import requests
 from fastapi.encoders import jsonable_encoder
-from ..services.validation_services import validate_req_passenger_and_get_uid, validate_token
+from ..services.validation_services import validate_req_passenger_and_get_uid
+from ..services.validation_services import validate_token
 from app.services.rabbit_services import push_metric
 
 
