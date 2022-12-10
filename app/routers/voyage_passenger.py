@@ -7,7 +7,7 @@ from app.schemas.complaint import ComplaintBase, ReviewBase
 from app.schemas.voyage_schema import SearchVoyageBase
 import requests
 from fastapi.encoders import jsonable_encoder
-from ..services.validation_services import validate_req_passenger_and_get_uid
+from ..services.validation_services import validate_req_passenger_and_get_uid, validate_token
 from app.services.rabbit_services import push_metric
 
 
@@ -216,6 +216,21 @@ def add_review(voyage_id: str, review: ReviewBase,
     resp = requests.post(VOYAGE_URL
                          + "/voyage/review/" + voyage_id + "/" + uid,
                          json=rev)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
+
+
+@router.get("/info/{voyage_id}")
+def get_voyage_info(voyage_id: str, token: Optional[str] = Header(None)):
+    """
+    Return The info of voyage asked
+    """
+    caller_id = validate_token(token)
+    resp = requests.get(VOYAGE_URL
+                        + "/voyage/info/" + voyage_id + '/' + caller_id)
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],

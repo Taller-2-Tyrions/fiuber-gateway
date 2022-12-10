@@ -242,3 +242,18 @@ def add_review(voyage_id: str, review: ReviewBase,
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
     return data
+
+
+@router.get("/info/{voyage_id}")
+def get_voyage_info(voyage_id: str, token: Optional[str] = Header(None)):
+    """
+    Return The info of voyage asked
+    """
+    caller_id = validate_token(token)
+    resp = requests.get(VOYAGE_URL
+                        + "/voyage/info/" + voyage_id + '/' + caller_id)
+    data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=data["detail"],
+                            status_code=resp.status_code)
+    return data
