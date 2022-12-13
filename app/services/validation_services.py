@@ -37,7 +37,7 @@ def validate_req_and_get_uid(token, role):
     else:
         raise HTTPException(detail={
                 'message': resp0.reason
-            }, status_code=resp0.status_code)
+            }, status_code=401)
     return resp["uid"]
 
 
