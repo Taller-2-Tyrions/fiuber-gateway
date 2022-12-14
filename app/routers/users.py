@@ -213,6 +213,13 @@ def get_public_profile(id: str, token: str, is_driver: bool):
                             status_code=resp.status_code)
     data.update(resp.json())
 
+    resp = requests.get(VOYAGE_URL +
+                        "/voyage/vip/"+id+"/"+str(is_driver))
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=resp.json()["detail"],
+                            status_code=resp.status_code)
+    data.update({"is_vip": resp.json()})
+
     return data
 
 
