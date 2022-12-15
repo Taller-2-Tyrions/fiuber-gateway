@@ -24,8 +24,8 @@ async def signup(params: AuthBase):
 
     status = req.status_code == 200
     push_metric({"event": "Signup",
-                "is_federate": False,
-                 "status": status})
+                "is_federate": "false",
+                 "status": str(status)})
 
     if (req.status_code != 200):
         raise HTTPException(detail=data["detail"], status_code=req.status_code)

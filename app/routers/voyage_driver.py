@@ -181,7 +181,7 @@ def inform_finish_voyage(voyage_id: str,
                          json=params)
     status = resp.status_code == 200
     push_metric({"event": "Payment",
-                "status": status,
+                "status": str(status),
                  "price": data["price"]})
     data = resp.json()
     if (not is_status_correct(resp.status_code)):

@@ -36,8 +36,8 @@ async def login(params: LoginAuthBase):
 
     status = req.status_code == 200
     push_metric({"event": "Login",
-                "is_federate": False,
-                 "status": status})
+                "is_federate": "false",
+                 "status": str(status)})
 
     if (req.status_code != 200):
         raise HTTPException(detail=data["detail"], status_code=req.status_code)
@@ -56,8 +56,8 @@ async def login_google(device_token: DeviceToken,
 
     status = req.status_code == 200
     push_metric({"event": "Login",
-                "is_federate": True,
-                 "status": status})
+                "is_federate": "true",
+                 "status": str(status)})
 
     if (req.status_code != 200):
         raise HTTPException(detail=data["detail"], status_code=401)
