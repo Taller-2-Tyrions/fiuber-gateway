@@ -126,14 +126,14 @@ async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
 
-    price = data.get("final_price")
+    price = float(data.get("final_price"))
     voyage_id = data.get("voyage_id")
     resp = requests.get(PAYMENTS_URL+"/balance/"+uid)
     balance_data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=balance_data["detail"],
                             status_code=resp.status_code)
-    current = balance_data['balance']
+    current = float(balance_data['balance'])
 
     if price > current:
         resp = requests.post(VOYAGE_URL
