@@ -201,17 +201,19 @@ def cancel_confirmed_voyage(voyage_id: str,
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
     if data:
+        price = data["amountInEthers"]
+        data.update({"amountInEthers": str(price)})
         resp = requests.post(PAYMENTS_URL+"/deposit",
                              json=data)
         status = resp.status_code == 200
         push_metric({"event": "Payment",
                     "status": status,
-                     "price": data["amountInEthers"]})
+                     "price": price})
         paym_data = resp.json()
         if (not is_status_correct(resp.status_code)):
-            raise HTTPException(detail=paym_data["detail"],
+            raise HTTPException(detail=paym_data["message"],
                                 status_code=resp.status_code)
-        return data["amountInEthers"]
+        return price
 
     return data
 

@@ -175,7 +175,7 @@ def inform_finish_voyage(voyage_id: str,
 
     params = {"senderId": data["passenger_id"],
               "receiverId": data["driver_id"],
-              "amountInEthers": data['price']}
+              "amountInEthers": str(data['price'])}
 
     resp = requests.post(PAYMENTS_URL+"/deposit",
                          json=params)
@@ -185,7 +185,7 @@ def inform_finish_voyage(voyage_id: str,
                  "price": data["price"]})
     data = resp.json()
     if (not is_status_correct(resp.status_code)):
-        raise HTTPException(detail=data["detail"],
+        raise HTTPException(detail=data["message"],
                             status_code=resp.status_code)
     return {"result": "Ok"}
 
