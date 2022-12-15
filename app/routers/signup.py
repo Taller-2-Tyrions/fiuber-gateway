@@ -18,7 +18,7 @@ router = APIRouter(
 
 @router.post('/')
 async def signup(params: AuthBase):
-    req = requests.post(USERS_URL+"/signup", json=jsonable_encoder(params))
+    req = requests.post(USERS_URL+"/signup/", json=jsonable_encoder(params))
 
     data = req.json()
 

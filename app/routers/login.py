@@ -30,7 +30,7 @@ async def send_recover_email(email: RecoveryEmailBase):
 
 @router.post('/')
 async def login(params: LoginAuthBase):
-    req = requests.post(USERS_URL+"/login", json=jsonable_encoder(params))
+    req = requests.post(USERS_URL+"/login/", json=jsonable_encoder(params))
 
     data = req.json()
 
