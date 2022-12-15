@@ -13,7 +13,7 @@ def validate_token(token):
     params = {
         "token": token
     }
-    resp = requests.post(USERS_URL+"/validate", json=params)
+    resp = requests.post(USERS_URL+"/validate/", json=params)
     if (is_status_correct(resp.status_code)):
         return resp.json()["uid"]
     raise HTTPException(detail={
@@ -25,7 +25,7 @@ def validate_req_and_get_uid(token, role):
     params = {
         "token": token
     }
-    resp0 = requests.post(USERS_URL+"/validate", json=params)
+    resp0 = requests.post(USERS_URL+"/validate/", json=params)
     if (is_status_correct(resp0.status_code)):
         resp = resp0.json()
         if (resp["is_blocked"] or role not in resp["roles"]):
