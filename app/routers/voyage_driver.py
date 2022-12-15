@@ -175,19 +175,15 @@ def inform_finish_voyage(voyage_id: str,
 
     params = {"senderId": data["passenger_id"],
               "receiverId": data["driver_id"],
-              "amountInEthers": 0.0000001}
-    # En AMOUNT VA data['price'] pero hay que ver si manejamos ethers
-    # o pesos/dolares
-    # Ya que payments espera en eths pero en voyage lo tenemos en pesos/dolares
-    # Tambien le vamos a pasar el fee que nos quedamos nosotros de ese monto
+              "amountInEthers": data['price']}
 
     resp = requests.post(PAYMENTS_URL+"/deposit",
                          json=params)
-    data = resp.json()
     status = resp.status_code == 200
     push_metric({"event": "Payment",
                 "status": status,
                  "price": data["price"]})
+    data = resp.json()
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)

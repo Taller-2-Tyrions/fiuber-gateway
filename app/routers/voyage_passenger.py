@@ -125,6 +125,32 @@ async def ask_for_voyage(id_driver: str, voyage: SearchVoyageBase,
     if (not is_status_correct(resp.status_code)):
         raise HTTPException(detail=data["detail"],
                             status_code=resp.status_code)
+
+    price = data.get("final_price")
+    voyage_id = data.get("voyage_id")
+    resp = requests.get(PAYMENTS_URL+"/balance/"+uid)
+    balance_data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=balance_data["detail"],
+                            status_code=resp.status_code)
+    current = balance_data['balance']
+
+    if price > current:
+        resp = requests.post(VOYAGE_URL
+                             + "/voyage/passenger/confirm/" + voyage_id
+                             + "/" + uid + "/false")
+        raise HTTPException(detail="Not Enough Money",
+                            status_code=400)
+
+    resp = requests.post(VOYAGE_URL
+                         + "/voyage/passenger/confirm/" + voyage_id
+                         + "/" + uid + "/true")
+
+    confirm_data = resp.json()
+    if (not is_status_correct(resp.status_code)):
+        raise HTTPException(detail=confirm_data["detail"],
+                            status_code=resp.status_code)
+
     return data
 
 
@@ -177,15 +203,15 @@ def cancel_confirmed_voyage(voyage_id: str,
     if data:
         resp = requests.post(PAYMENTS_URL+"/deposit",
                              json=data)
-        data = resp.json()
         status = resp.status_code == 200
         push_metric({"event": "Payment",
                     "status": status,
-                     "price": data["price"]})
+                     "price": data["amountInEthers"]})
+        paym_data = resp.json()
         if (not is_status_correct(resp.status_code)):
-            raise HTTPException(detail=data["detail"],
+            raise HTTPException(detail=paym_data["detail"],
                                 status_code=resp.status_code)
-        return data["price"]
+        return data["amountInEthers"]
 
     return data
 

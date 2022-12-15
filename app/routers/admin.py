@@ -66,6 +66,7 @@ async def unblock_user(user_id: str,
     """
     caller_id = validate_req_admin_and_get_uid(token)
     req = requests.post(USERS_URL+f"/users/unblock/{user_id}/{caller_id}")
+    push_metric({"event": "Unblock"})
     data = req.json()
     if (not is_status_correct(req.status_code)):
         raise HTTPException(detail=data["detail"],
