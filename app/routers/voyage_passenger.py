@@ -207,14 +207,9 @@ def cancel_confirmed_voyage(voyage_id: str,
                              json=data)
         status = resp.status_code == 200
         push_metric({"event": "Payment",
-<<<<<<< Updated upstream
-                    "status": status,
-                     "price": price})
-        paym_data = resp.json()
-=======
                     "status": str(status),
-                     "price": data["price"]})
->>>>>>> Stashed changes
+                     "price": str(price)})
+        paym_data = resp.json()
         if (not is_status_correct(resp.status_code)):
             raise HTTPException(detail=paym_data["message"],
                                 status_code=resp.status_code)

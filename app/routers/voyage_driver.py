@@ -169,9 +169,9 @@ def inform_finish_voyage(voyage_id: str,
                             status_code=resp.status_code)
 
     push_metric({"event": "Voyage",
-                "is_vip": data["is_vip"],
-                 "start_time": data["start_time"],
-                 "end_time": data["end_time"]})
+                "is_vip": str(data["is_vip"]),
+                 "start_time": str(data["start_time"]),
+                 "end_time": str(data["end_time"])})
 
     params = {"senderId": data["passenger_id"],
               "receiverId": data["driver_id"],
